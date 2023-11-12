@@ -1,6 +1,7 @@
 **Course:** Software Design & Architecture
 
 **Name:** Wine Web Macedonia
+
 **About:** Web App for locating wineries in Macedonia..
 
 **Mentors:** 
