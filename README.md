@@ -2,7 +2,7 @@
 
 **Name:** Wine Web Macedonia
 
-**About:** Web App for locating wineries in Macedonia..
+**About:** Web App for locating wineries in Macedonia.
 
 **Mentors:** 
 - Ljupcho Antovski Ph.D.
