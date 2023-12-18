@@ -16,28 +16,15 @@
       </div>
     </div>
     <div class="center-block">
+      <div id="map" ref="map">
 
-      <!-- Content for the new centered block -->
-      <div>
-        <h2 class="h2-map" style="margin-left:0px;">Connecting to backend:</h2>
-        <!-- Render divs for each entry -->
-        <div v-for="(entry, index) in entries" :key="index" class="entry">
-          <h3>{{ entry.Name }}</h3>
-          <p>City: {{ entry.City }}</p>
-          <p>Address: {{ entry.Address }}</p>
-          <p>See more...</p>
-          <!-- Add more properties as needed -->
-        </div>
       </div>
     </div>
-<!--    <div class="map-block">-->
-<!--      &lt;!&ndash; Map content &ndash;&gt;-->
-<!--    </div>-->
     <div class="right-block">
       <h2 class="h2-map">Details</h2>
       <div class="right-block-details">
-        <label>Adress:</label>
-        <div class="adress-result">
+        <label>Address:</label>
+        <div class="address-result">
           <!-- Address result -->
         </div>
         <label>Working hours:</label>
@@ -60,14 +47,27 @@
 
 <script>
 import axios from 'axios';
+import L from 'leaflet';
 
 export default {
+  name: 'Map',
+
   data() {
     return {
+      map: null,
       entries: []
     };
   },
   async mounted() {
+    // Create the map
+    var map = L.map(this.$refs.map).setView([51.505, -0.09], 13);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 22,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    var marker = L.marker([51.5, -0.09]).addTo(map);
     try {
       console.log("Send request to backend")
       const response = await axios.get('http://127.0.0.1:8000/get_data');
@@ -92,7 +92,13 @@ export default {
 
 };
 </script>
-
 <style scoped>
+@import "leaflet/dist/leaflet.css";
+
 /* Your CSS styles can be placed here */
+#map{
+  width: 90%;
+  height: 90%;
+  overflow: hidden;
+}
 </style>
