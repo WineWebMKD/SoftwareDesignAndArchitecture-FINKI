@@ -5,14 +5,14 @@
 
   <main>
     <div id="app">
-      <Navbar/>
+      <Navbar />
       <router-view></router-view>
       <div class="container">
         <div class="navigation-bar bottom">
         </div>
       </div>
     </div>
-    <!--    <Contact />-->
+<!--    <Contact />-->
   </main>
 </template>
 
@@ -25,6 +25,7 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+@import "leaflet/dist/leaflet.css";
 header {
   line-height: 1.5;
 }
@@ -34,7 +35,6 @@ header {
   margin: 0 auto 2rem;
 }
 
-@import "leaflet/dist/leaflet.css";
 @media (min-width: 1024px) {
   header {
     display: flex;
