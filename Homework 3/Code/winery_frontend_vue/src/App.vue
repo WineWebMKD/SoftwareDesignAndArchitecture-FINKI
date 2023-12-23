@@ -1,11 +1,8 @@
-<<<<<<< HEAD
 <script setup>
 import Contact from "@/components/Contact.vue";
 import Navbar from "@/components/Navbar.vue";
 </script>
 
-=======
->>>>>>> map_integration
 <template>
   <header>
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>

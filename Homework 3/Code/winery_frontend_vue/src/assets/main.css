@@ -95,13 +95,7 @@ a:active{
 .title {
   color: #7D1310;
   font-size: 26px;
-<<<<<<< HEAD
-  margin-bottom: 20px;
-  padding-left: 230px;
-=======
   margin-top: 25%;
-
->>>>>>> map_integration
 }
 
 .content {
@@ -157,11 +151,6 @@ a:active{
   display: flex;
   flex-direction: column;
   align-items: center;
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> map_integration
 }
 
 .form-field {
