@@ -4,13 +4,13 @@
       <input class="search-bar-map" type="text" placeholder="         Name/Address">
       <label>City</label>
       <select v-model="selectedCity" id="select-bar-map1" name="City" @change="filterResults">
-        <option value="">All</option>
+        <option value="all">All</option>
         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
         <!-- Options for City select -->
       </select >
       <label>Occupation</label>
-      <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="filterOccupation">
-        <option value="">None</option>
+      <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="filterResults">
+        <option value="any">Any</option>
         <option value="vizba">Визба</option>
         <option value="vinarija">Винарија</option>
         <!-- Options for Occupation select -->
@@ -191,13 +191,17 @@ export default {
     },
     async filterResults() {
       try{
-        if(this.selectedCity === ""){
-          await this.get_all_data()
+        if(this.selectedCity === "all"){
+          if(this.selectedOcc === "any"){
+            await this.get_all_data()
+          }else {
+            await this.filterOccupation()
+          }
         }else{
           console.log(this.selectedCity)
           const encoded_city = transliterate(this.selectedCity);
           console.log(encoded_city)
-          const response = await axios.get(`http://127.0.0.1:8000/get_result/${encoded_city}`);// Replace with your backend endpoint
+          const response = await axios.get(`http://127.0.0.1:8000/get_filtered_data/${encoded_city}/${this.selectedOcc}`);// Replace with your backend endpoint
           const data = response.data['data'];
           console.log("Parse data..")
           const parsedData = JSON.parse(data);

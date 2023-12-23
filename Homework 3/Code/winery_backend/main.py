@@ -46,19 +46,6 @@ async def get_data(marker_id: int):
             "data": data}
 
 
-@app.get("/get_result/{encoded_city}")
-async def get_result(encoded_city: str):
-    print(encoded_city)
-    print(get_available_language_codes())
-    decoded_city = translit(encoded_city, 'mk')
-    df = pd.read_csv("filtered.csv")
-    df_copy = df.copy()
-    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
-    data = df_copy[df_copy["City"] == decoded_city].to_json(orient="records")
-    return {"message": "Connected to backend",
-            "data": data, "city": decoded_city}
-
-
 @app.get("/get_occupation/{occupation}")
 async def get_occupation(occupation: str):
     print(occupation)
@@ -81,6 +68,34 @@ async def get_all_coordinates():
     data = df_copy.to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data}
+
+
+@app.get("/get_filtered_data/{encoded_city}/{occupation}")
+async def get_filtered_data(encoded_city: str, occupation: str):
+    try:
+        # Decode the city
+        selected_city = translit(encoded_city, 'mk')
+        # Read your CSV data
+        df = pd.read_csv("filtered.csv")
+        df_copy = df.copy()
+        df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
+        # Filter data based on both city and occupation
+        if occupation == 'vizba':
+            filtered_data = df_copy[(df_copy['City'] == selected_city)
+                                    & (df_copy["Activities"].str.contains('винотеки (винарници)', regex=False))]
+        elif occupation == 'vinarija':
+            filtered_data = df_copy[(df_copy['City'] == selected_city)
+                                    & (df_copy["Activities"].str.contains("винарски визби", regex=False))]
+        else:
+            # Handle other occupations or no occupation selected
+            filtered_data = df_copy[df_copy['City'] == selected_city]
+
+        # Convert the filtered data to JSON
+        data = filtered_data.to_json(orient="records")
+
+        return {"message": "Connected to backend", "data": data}
+    except Exception as e:
+        return {"message": f"Error: {str(e)}"}
 
 
 @app.get("/hello/{name}")
