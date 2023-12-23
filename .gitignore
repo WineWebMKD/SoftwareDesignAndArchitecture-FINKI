@@ -1,4 +1,8 @@
 .idea
+<<<<<<< HEAD
 Homework 3/Code/winery_backend/__pycache__
 Homework 3/Code/winery_backend/.idea
 Homework 3/Code/winery_frontend_vue/.idea
+=======
+__pycache__
+>>>>>>> map_integration

@@ -27,6 +27,7 @@ export default {
 .image-container {
   position: relative;
   text-align: center; /* Center the text horizontally */
+  top: 45%;
 }
 
 .image {
@@ -52,5 +53,22 @@ export default {
   width: 350px;
   font-size: 26px;
   color: white;
+}
+
+.home-page-button{
+  position: absolute;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #7D1310;
+  color: white;
+  font-size: 20px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 30px;
+  width: 250px;
+  height: 50px;
 }
 </style>

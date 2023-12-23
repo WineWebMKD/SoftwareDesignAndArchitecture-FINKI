@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 <script setup>
 import Contact from "@/components/Contact.vue";
 import Navbar from "@/components/Navbar.vue";
 </script>
 
+=======
+>>>>>>> map_integration
 <template>
   <header>
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
@@ -21,7 +24,16 @@ import Navbar from "@/components/Navbar.vue";
   </main>
 </template>
 
+<script>
+import {defineComponent} from "vue";
+import Navbar from "@/components/Navbar.vue";
+
+export default defineComponent({
+  components: {Navbar}
+})
+</script>
 <style scoped>
+@import "leaflet/dist/leaflet.css";
 header {
   line-height: 1.5;
 }

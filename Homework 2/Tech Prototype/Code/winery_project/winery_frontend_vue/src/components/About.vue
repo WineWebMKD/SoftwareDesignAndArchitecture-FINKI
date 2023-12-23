@@ -17,4 +17,13 @@ export default {
 
 <style scoped>
 /* Your CSS styles can be placed here */
+.inner-block-about {
+  background-color: #B18B6A;
+  padding: 50px;
+
+  margin: 0 auto;
+  text-align: center;
+  height: 450px;
+  width: 450px;
+}
 </style>

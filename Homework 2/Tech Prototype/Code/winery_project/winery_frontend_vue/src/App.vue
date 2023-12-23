@@ -1,8 +1,3 @@
-<script setup>
-import Contact from "@/components/Contact.vue";
-import Navbar from "@/components/Navbar.vue";
-</script>
-
 <template>
   <header>
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
@@ -10,17 +5,25 @@ import Navbar from "@/components/Navbar.vue";
 
   <main>
     <div id="app">
-      <Navbar />
+      <Navbar/>
       <router-view></router-view>
       <div class="container">
         <div class="navigation-bar bottom">
         </div>
       </div>
     </div>
-<!--    <Contact />-->
+    <!--    <Contact />-->
   </main>
 </template>
 
+<script>
+import {defineComponent} from "vue";
+import Navbar from "@/components/Navbar.vue";
+
+export default defineComponent({
+  components: {Navbar}
+})
+</script>
 <style scoped>
 header {
   line-height: 1.5;
@@ -31,6 +34,7 @@ header {
   margin: 0 auto 2rem;
 }
 
+@import "leaflet/dist/leaflet.css";
 @media (min-width: 1024px) {
   header {
     display: flex;
