@@ -1,15 +1,18 @@
 <template>
   <div class="outer-block-map">
     <div class="left-block">
-      <input class="search-bar-map" type="text" placeholder="         Name/Address">
+      <div >
+        <i id="search_icon"><img src="./WineWeb/Icons/Search_icon.png" alt="" @click="checkFilters()"/></i>
+        <input v-model="search_input" class="search-bar-map" type="text" placeholder="Name/Address">
+      </div>
       <label>City</label>
-      <select v-model="selectedCity" id="select-bar-map1" name="City" @change="filterResults">
+      <select v-model="selectedCity" id="select-bar-map1" name="City" @change="checkFilters()">
         <option value="all">All</option>
         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
         <!-- Options for City select -->
       </select >
       <label>Occupation</label>
-      <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="filterResults">
+      <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="checkFilters()">
         <option value="any">Any</option>
         <option value="vizba">Визба</option>
         <option value="vinarija">Винарија</option>
@@ -73,7 +76,8 @@ export default {
       entries: [],
       cities: [],
       selectedCity: '',
-      selectedOcc: ''
+      selectedOcc: '',
+      search_input: ''
     };
   },
   async mounted() {
@@ -141,7 +145,7 @@ export default {
     async get_all_data() {
       try {
         console.log("Send request to backend")
-        const response = await axios.get('http://127.0.0.1:8000/get_all_coordinates');
+        const response = await axios.get('http://127.0.0.1:8000/get_all_data');
         const data = response.data['data'];
         console.log("Parse data..")
         const parsedData = JSON.parse(data);
@@ -151,8 +155,12 @@ export default {
 
         //map out data columns
         let Wineries = await this.map_data(parsedData)
-        console.log(Wineries)
-
+        //console.log(Wineries)
+        const resultSelect = document.getElementById("filter_results");
+        while (resultSelect.firstChild) {
+          resultSelect.removeChild(resultSelect.firstChild);
+        }
+        await this.resetDetails()
         await this.removeAllMarkers()
         for (const obj of Wineries) {
           //get specific coordinates
@@ -167,6 +175,14 @@ export default {
         console.error('Error fetching data:', error);
       }
     },
+    async resetDetails(){
+      this.address = "null"
+      this.working_hours = "null"
+      this.facebook = null
+      this.instagram = null
+      this.webpage = null
+      this.contact = "no."
+    },
     async getDataFromBackend(markerId) {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/get_data/${markerId}`);// Replace with your backend endpoint
@@ -176,6 +192,7 @@ export default {
         console.log("Data from backend:", parsedData);
         // Handle the received data, update UI, etc.
         let target = await this.map_data(parsedData)
+
 
         console.log(target)
         this.address = `${target[0].Address}`
@@ -189,34 +206,76 @@ export default {
         console.error("Error fetching data:", error);
       }
     },
+    async filterInput(){
+      try{
+        console.log(this.search_input)
+        const encoded_input = transliterate(this.search_input);
+        console.log(encoded_input)
+        const response = await axios.get(`http://127.0.0.1:8000/get_input_data/${encoded_input}`);// Replace with your backend endpoint
+        const data = response.data['data'];
+        console.log("Parse data..")
+        const parsedData = JSON.parse(data);
+        console.log("Data from backend:", parsedData);
+
+        const resultSelect = document.getElementById("filter_results");
+        while (resultSelect.firstChild) {
+          resultSelect.removeChild(resultSelect.firstChild);
+        }
+        await this.resetDetails()
+        await this.removeAllMarkers()
+        const mappedData = await this.map_data(parsedData)
+        for (const obj of mappedData) {
+          await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
+          await this.detailed_results(obj.Name, obj.ID)
+        }
+      } catch (error){
+        console.error("Error fetching data:", error);
+      }
+    },
+    async checkFilters(){
+      if(this.search_input === ""){ this.search_input = "No input"}
+      if(this.selectedCity === ""){ this.selectedCity = "all"}
+      if(this.selectedOcc === ""){ this.selectedOcc = "any"}
+
+      if(this.selectedCity === "all"){
+        if(this.selectedOcc === "any") {
+          if(this.search_input === "No input") {
+            await this.get_all_data()
+          } else {
+            await this.filterInput()
+          }
+        } else if(this.search_input === "No input"){
+          await this.filterOccupation()
+        } else await this.filterResults()
+      }else{
+        await this.filterResults()
+      }
+    },
     async filterResults() {
       try{
-        if(this.selectedCity === "all"){
-          if(this.selectedOcc === "any"){
-            await this.get_all_data()
-          }else {
-            await this.filterOccupation()
-          }
-        }else{
-          console.log(this.selectedCity)
-          const encoded_city = transliterate(this.selectedCity);
-          console.log(encoded_city)
-          const response = await axios.get(`http://127.0.0.1:8000/get_filtered_data/${encoded_city}/${this.selectedOcc}`);// Replace with your backend endpoint
-          const data = response.data['data'];
-          console.log("Parse data..")
-          const parsedData = JSON.parse(data);
-          console.log("Data from backend:", parsedData);
+        console.log(this.selectedCity)
+        const encoded_city = transliterate(this.selectedCity);
+        console.log(encoded_city)
+        console.log(this.search_input)
+        const encoded_input = transliterate(this.search_input);
+        console.log(encoded_input)
+        const response = await axios.get(
+            `http://127.0.0.1:8000/get_filtered_data/${encoded_city}/${this.selectedOcc}/${encoded_input}`);
+        const data = response.data['data'];
+        console.log("Parse data..")
+        console.log(data)
+        const parsedData = JSON.parse(data);
+        console.log("Data from backend:", parsedData);
 
-          const resultSelect = document.getElementById("filter_results");
-          while (resultSelect.firstChild) {
-            resultSelect.removeChild(resultSelect.firstChild);
-          }
-          await this.removeAllMarkers()
-          const mappedData = await this.map_data(parsedData)
-          for (const obj of mappedData) {
-            await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
-            await this.detailed_results(obj.Name, obj.ID)
-          }
+        const resultSelect = document.getElementById("filter_results");
+        while (resultSelect.firstChild) {
+          resultSelect.removeChild(resultSelect.firstChild);
+        }
+        await this.removeAllMarkers()
+        const mappedData = await this.map_data(parsedData)
+        for (const obj of mappedData) {
+          await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
+          await this.detailed_results(obj.Name, obj.ID)
         }
       } catch (error){
         console.error("Error fetching data:", error);
@@ -239,6 +298,7 @@ export default {
           while (resultSelect.firstChild) {
             resultSelect.removeChild(resultSelect.firstChild);
           }
+          await this.resetDetails()
           await this.removeAllMarkers()
           const mappedData = await this.map_data(parsedData)
           for (const obj of mappedData) {
@@ -292,5 +352,15 @@ export default {
 
 .left-block-results::-webkit-scrollbar-track {
   background-color: transparent; /* Set the color of the scrollbar track */
+}
+
+#search_icon {
+  margin-left: 20px;
+  width: 20px;
+  height: 20px;
+}
+#search_icon > img {
+  width: 20px;
+  height: 20px;
 }
 </style>
