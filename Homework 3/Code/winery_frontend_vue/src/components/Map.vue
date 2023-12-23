@@ -3,8 +3,9 @@
     <div class="left-block">
       <input class="search-bar-map" type="text" placeholder="         Name/Address">
       <label>City</label>
-      <select id="select-bar-map1" name="City">
-        <option value="">None</option>
+      <select v-model="selectedCity" id="select-bar-map1" name="City" @change="filterResults">
+        <option value="All">All</option>
+        <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
         <!-- Options for City select -->
       </select>
       <label>Occupation</label>
@@ -55,6 +56,8 @@
 <script>
 import axios from 'axios';
 import L from 'leaflet';
+import {transliterate} from "transliteration";
+import {map} from "leaflet/src/map";
 
 export default {
   name: 'Map',
@@ -69,22 +72,16 @@ export default {
       contact: "no.",
       map: null,
       entries: [],
-      cities: []
+      cities: [],
+      selectedCity: ''
     };
   },
   async mounted() {
-    // Create the map
-    let map = L.map(this.$refs.map).setView([41.6086, 21.7453], 8);
-
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 22,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+    await this.get_all_data()
 
     try {
-      console.log("Send request to backend")
-      const response = await axios.get('http://127.0.0.1:8000/get_all_coordinates');
+      console.log("Send request to backend for cities")
+      const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
       const data = response.data['data'];
       console.log("Parse data..")
       const parsedData = JSON.parse(data);
@@ -92,65 +89,8 @@ export default {
       console.log(parsedData)
       console.log(parsedData[0])
 
-      //map out data columns
-      let Wineries = parsedData.map(obj => {
-        return {
-          ID: obj.ID,
-          Latitude: obj.Latitude,
-          Longitude: obj.Longitude,
-          Name: obj.Name,
-          Address: obj.Address
-        };
-      });
-      console.log(Wineries)
-      const resultSelect = document.getElementById("filter_results");
-
-      for (let i = 0; i < Wineries.length; i++) {
-        //get specific coordinates
-        let coordinate = Wineries[i];
-        console.log(coordinate)
-        //create marker and user interaction with it
-        const marker = L.marker([coordinate.Latitude, coordinate.Longitude]).addTo(map);
-        marker.bindPopup(`<b>${coordinate.Name}</b><br>Address: ${coordinate.Address}<br>`);
-        marker.on('click', () => {
-          this.getDataFromBackend(coordinate.ID);
-        });
-        //console print coordinates (check)
-        console.log(`Coordinate ${coordinate.ID}: (${coordinate.Latitude}, ${coordinate.Longitude})`);
-
-        const div_result = document.createElement("div");
-        div_result.textContent = coordinate.Name;
-        div_result.addEventListener('click', () => {
-          this.getDataFromBackend(coordinate.ID);
-        });
-        resultSelect.appendChild(div_result);
-
-      }
-
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-    try {
-      console.log("Send request to backend for cities")
-      const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
-      const cities = response.data['data'];
-      console.log("Parse data..")
-      const parsedData = JSON.parse(cities);
-      console.log("Parsed data is:")
-      console.log(parsedData)
-      console.log(parsedData[0])
-
-      const citySelect = document.getElementById("select-bar-map1");
-      citySelect.addEventListener("change", () => {
-        const selectedOption = citySelect.value;
-        this.filterResults(selectedOption);
-      });
-
       parsedData.forEach(obj => {
-        const option = document.createElement("option");
-        option.value = obj.City;
-        option.textContent = obj.City;
-        citySelect.appendChild(option);
+        this.cities.push(obj.City)
       });
 
     } catch (error) {
@@ -159,6 +99,55 @@ export default {
   },
 
   methods: {
+    async get_all_data() {
+      try {
+        // Create the map
+        let map = L.map(this.$refs.map).setView([41.6086, 21.7453], 8);
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 22,
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        console.log("Send request to backend")
+        const response = await axios.get('http://127.0.0.1:8000/get_all_coordinates');
+        const data = response.data['data'];
+        console.log("Parse data..")
+        const parsedData = JSON.parse(data);
+        console.log("Parsed data is:")
+        console.log(parsedData)
+        console.log(parsedData[0])
+
+        //map out data columns
+        let Wineries = parsedData.map(obj => {
+          return {
+            ID: obj.ID,
+            Latitude: obj.Latitude,
+            Longitude: obj.Longitude,
+            Name: obj.Name,
+            Address: obj.Address
+          };
+        });
+        console.log(Wineries)
+
+        for (let i = 0; i < Wineries.length; i++) {
+          //get specific coordinates
+          let coordinate = Wineries[i];
+          console.log(coordinate)
+          //create marker and user interaction with it
+          const marker = L.marker([coordinate.Latitude, coordinate.Longitude]).addTo(map);
+          marker.bindPopup(`<b>${coordinate.Name}</b><br>Address: ${coordinate.Address}<br>`);
+          marker.on('click', () => {
+            this.getDataFromBackend(coordinate.ID);
+          });
+          console.log(`Coordinate ${coordinate.ID}: (${coordinate.Latitude}, ${coordinate.Longitude})`);
+          await this.all_cities(coordinate.Name, coordinate.ID)
+        }
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
     async getDataFromBackend(markerId) {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/get_data/${markerId}`);// Replace with your backend endpoint
@@ -190,14 +179,66 @@ export default {
         console.error("Error fetching data:", error);
       }
     },
-    async filterResults(selectedOption) {
-      const response = await axios.get(`http://127.0.0.1:8000/get_data/${selectedOption}`);// Replace with your backend endpoint
-      const data = response.data['data'];
-      console.log("Parse data..")
-      const parsedData = JSON.parse(data);
-      console.log("Data from backend:", parsedData);
+    async filterResults() {
+      try{
+        if(this.selectedCity === "All"){
+          console.log("Send request to backend")
+          const response = await axios.get('http://127.0.0.1:8000/get_all_coordinates');
+          const data = response.data['data'];
+          console.log("Parse data..")
+          const parsedData = JSON.parse(data);
 
+          let Wineries = parsedData.map(obj => {
+            return {
+              ID: obj.ID,
+              Latitude: obj.Latitude,
+              Longitude: obj.Longitude,
+              Name: obj.Name,
+              Address: obj.Address
+            };
+          });
 
+          for (let i = 0; i < Wineries.length; i++) {
+            let coordinate = Wineries[i];
+            await this.all_cities(coordinate.Name, coordinate.ID)
+          }
+        }else{
+          console.log(this.selectedCity)
+          const encoded_city = transliterate(this.selectedCity);
+          console.log(encoded_city)
+          const response = await axios.get(`http://127.0.0.1:8000/get_result/${encoded_city}`);// Replace with your backend endpoint
+          const data = response.data['data'];
+          console.log("Parse data..")
+          const parsedData = JSON.parse(data);
+          console.log("Data from backend:", parsedData);
+
+          const resultSelect = document.getElementById("filter_results");
+          while (resultSelect.firstChild) {
+            resultSelect.removeChild(resultSelect.firstChild);
+          }
+          parsedData.forEach(obj => {
+            const div_result = document.createElement("div");
+            div_result.textContent = obj.Name; // Adjust this based on your data structure
+            resultSelect.appendChild(div_result);
+          });
+        }
+      } catch (error){
+        console.error("Error fetching data:", error);
+      }
+    },
+    async all_cities(Name, ID){
+      try {
+        const resultSelect = document.getElementById("filter_results");
+        const div_result = document.createElement("div");
+        div_result.textContent = Name;
+        div_result.addEventListener('click', () => {
+          this.getDataFromBackend(ID);
+        });
+        resultSelect.appendChild(div_result);
+
+      } catch (error){
+        console.error("Error fetching data:", error);
+      }
     }
   }
 };
