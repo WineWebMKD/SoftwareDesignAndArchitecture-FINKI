@@ -7,10 +7,7 @@ origins = [
     "http://127.0.0.1:5173",  # Optionally, include localhost
 ]
 
-<<<<<<< HEAD
-=======
 
->>>>>>> map_integration
 app = FastAPI()
 
 app.add_middleware(
@@ -47,6 +44,25 @@ async def get_data(marker_id: int):
     df_copy = df.copy()
     df_copy.rename(columns={df.columns[0]: 'ID'}, inplace=True)
     data = df_copy[df_copy['ID'] == marker_id].to_json(orient="records")
+    return {"message": "Connected to backend",
+            "data": data}
+
+
+@app.get("/get_data/{selectedOption}")
+async def get_data(selected_option: str):
+    df = pd.read_csv("filtered.csv")
+    df_copy = df.copy()
+    data = df_copy[df_copy['City'] == selected_option].to_json(orient="records")
+    return {"message": "Connected to backend",
+            "data": data}
+
+
+@app.get("/get_all_cities")
+async def get_all_coordinates():
+    df = pd.read_csv("filtered.csv")
+    unique_cities = df['City'].unique()
+    df_copy = pd.DataFrame(unique_cities, columns=['City'])
+    data = df_copy.to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data}
 
