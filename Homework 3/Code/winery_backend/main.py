@@ -40,7 +40,7 @@ async def get_all_coordinates():
 async def get_data(marker_id: int):
     df = pd.read_csv("filtered.csv")
     df_copy = df.copy()
-    df_copy.rename(columns={df.columns[0]: 'ID'}, inplace=True)
+    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
     data = df_copy[df_copy['ID'] == marker_id].to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data}
@@ -53,6 +53,7 @@ async def get_result(encoded_city: str):
     decoded_city = translit(encoded_city, 'mk')
     df = pd.read_csv("filtered.csv")
     df_copy = df.copy()
+    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
     data = df_copy[df_copy["City"] == decoded_city].to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data, "city": decoded_city}
