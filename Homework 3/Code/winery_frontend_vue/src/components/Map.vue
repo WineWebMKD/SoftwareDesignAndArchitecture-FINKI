@@ -4,7 +4,7 @@
       <input class="search-bar-map" type="text" placeholder="         Name/Address">
       <label>City</label>
       <select v-model="selectedCity" id="select-bar-map1" name="City" @change="filterResults">
-        <option value="All">All</option>
+        <option value="">All</option>
         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
         <!-- Options for City select -->
       </select>
@@ -57,7 +57,6 @@
 import axios from 'axios';
 import L from 'leaflet';
 import {transliterate} from "transliteration";
-import {map} from "leaflet/src/map";
 
 export default {
   name: 'Map',
@@ -77,6 +76,13 @@ export default {
     };
   },
   async mounted() {
+    // Create the map
+    this.map = L.map(this.$refs.map).setView([41.6086, 21.7453], 8);
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 22,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(this.map);
     await this.get_all_data()
 
     try {
@@ -99,16 +105,40 @@ export default {
   },
 
   methods: {
+    async removeAllMarkers() {
+
+      this.map.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+          this.map.removeLayer(layer);
+        }
+      });
+    },
+    async addNewMarker(latitude, longitude, id, name) {
+      // Assuming 'this.map' is your Leaflet map object
+      const marker = L.marker([latitude, longitude]).addTo(this.map);
+      marker.bindPopup(`<b>${name}</b>`);
+      marker.on('click', () => {
+          this.getDataFromBackend(id);
+      });
+    },
+    async map_data(parsedData){
+      return parsedData.map(obj => {
+        return {
+          ID: obj.ID,
+          Latitude: obj.Latitude,
+          Longitude: obj.Longitude,
+          Name: obj.Name,
+          Address: obj.Address,
+          Working_Hours: obj['Working Hours'],
+          Facebook: obj.Facebook,
+          Instagram: obj.Instagram,
+          WebPage: obj.WebPage,
+          Numbers: obj.Numbers
+        };
+      })
+    },
     async get_all_data() {
       try {
-        // Create the map
-        let map = L.map(this.$refs.map).setView([41.6086, 21.7453], 8);
-        // Add OpenStreetMap tile layer
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 22,
-          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
         console.log("Send request to backend")
         const response = await axios.get('http://127.0.0.1:8000/get_all_coordinates');
         const data = response.data['data'];
@@ -119,29 +149,17 @@ export default {
         console.log(parsedData[0])
 
         //map out data columns
-        let Wineries = parsedData.map(obj => {
-          return {
-            ID: obj.ID,
-            Latitude: obj.Latitude,
-            Longitude: obj.Longitude,
-            Name: obj.Name,
-            Address: obj.Address
-          };
-        });
+        let Wineries = await this.map_data(parsedData)
         console.log(Wineries)
 
-        for (let i = 0; i < Wineries.length; i++) {
+        await this.removeAllMarkers()
+        for (const obj of Wineries) {
           //get specific coordinates
-          let coordinate = Wineries[i];
-          console.log(coordinate)
+          console.log(obj)
           //create marker and user interaction with it
-          const marker = L.marker([coordinate.Latitude, coordinate.Longitude]).addTo(map);
-          marker.bindPopup(`<b>${coordinate.Name}</b><br>Address: ${coordinate.Address}<br>`);
-          marker.on('click', () => {
-            this.getDataFromBackend(coordinate.ID);
-          });
-          console.log(`Coordinate ${coordinate.ID}: (${coordinate.Latitude}, ${coordinate.Longitude})`);
-          await this.all_cities(coordinate.Name, coordinate.ID)
+          await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
+          console.log(`Coordinate ${obj.ID}: (${obj.Latitude}, ${obj.Longitude})`);
+          await this.detailed_results(obj.Name, obj.ID)
         }
 
       } catch (error) {
@@ -156,17 +174,8 @@ export default {
         const parsedData = JSON.parse(data);
         console.log("Data from backend:", parsedData);
         // Handle the received data, update UI, etc.
-        let target = parsedData.map(obj => {
-          return {
-            ID: obj.ID,
-            Address: obj.Address,
-            Working_Hours: obj['Working Hours'],
-            Facebook: obj.Facebook,
-            Instagram: obj.Instagram,
-            WebPage: obj.WebPage,
-            Numbers: obj.Numbers
-          };
-        });
+        let target = await this.map_data(parsedData)
+
         console.log(target)
         this.address = `${target[0].Address}`
         this.working_hours = `${target[0].Working_Hours}`
@@ -181,27 +190,8 @@ export default {
     },
     async filterResults() {
       try{
-        if(this.selectedCity === "All"){
-          console.log("Send request to backend")
-          const response = await axios.get('http://127.0.0.1:8000/get_all_coordinates');
-          const data = response.data['data'];
-          console.log("Parse data..")
-          const parsedData = JSON.parse(data);
-
-          let Wineries = parsedData.map(obj => {
-            return {
-              ID: obj.ID,
-              Latitude: obj.Latitude,
-              Longitude: obj.Longitude,
-              Name: obj.Name,
-              Address: obj.Address
-            };
-          });
-
-          for (let i = 0; i < Wineries.length; i++) {
-            let coordinate = Wineries[i];
-            await this.all_cities(coordinate.Name, coordinate.ID)
-          }
+        if(this.selectedCity === ""){
+          await this.get_all_data()
         }else{
           console.log(this.selectedCity)
           const encoded_city = transliterate(this.selectedCity);
@@ -216,17 +206,18 @@ export default {
           while (resultSelect.firstChild) {
             resultSelect.removeChild(resultSelect.firstChild);
           }
-          parsedData.forEach(obj => {
-            const div_result = document.createElement("div");
-            div_result.textContent = obj.Name; // Adjust this based on your data structure
-            resultSelect.appendChild(div_result);
-          });
+          await this.removeAllMarkers()
+          const mappedData = await this.map_data(parsedData)
+          for (const obj of mappedData) {
+            await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
+            await this.detailed_results(obj.Name, obj.ID)
+          }
         }
       } catch (error){
         console.error("Error fetching data:", error);
       }
     },
-    async all_cities(Name, ID){
+    async detailed_results(Name, ID){
       try {
         const resultSelect = document.getElementById("filter_results");
         const div_result = document.createElement("div");
