@@ -7,9 +7,9 @@
         <option value="">All</option>
         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
         <!-- Options for City select -->
-      </select>
+      </select >
       <label>Occupation</label>
-      <select class="select-bar-map2" name="Occupation">
+      <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="filterOccupation">
         <option value="">None</option>
         <option value="vizba">Визба</option>
         <option value="vinarija">Винарија</option>
@@ -72,7 +72,8 @@ export default {
       map: null,
       entries: [],
       cities: [],
-      selectedCity: ''
+      selectedCity: '',
+      selectedOcc: ''
     };
   },
   async mounted() {
@@ -215,6 +216,34 @@ export default {
         }
       } catch (error){
         console.error("Error fetching data:", error);
+      }
+    },
+    async filterOccupation(){
+      try{
+        if(this.selectedOcc === ""){
+          await this.get_all_data()
+        }else{
+          console.log(this.selectedOcc)
+          const occupation = this.selectedOcc
+          const response = await axios.get(`http://127.0.0.1:8000/get_occupation/${occupation}`);// Replace with your backend endpoint
+          const data = response.data['data'];
+          console.log("Parse data..")
+          const parsedData = JSON.parse(data);
+          console.log("Data from backend:", parsedData);
+
+          const resultSelect = document.getElementById("filter_results");
+          while (resultSelect.firstChild) {
+            resultSelect.removeChild(resultSelect.firstChild);
+          }
+          await this.removeAllMarkers()
+          const mappedData = await this.map_data(parsedData)
+          for (const obj of mappedData) {
+            await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
+            await this.detailed_results(obj.Name, obj.ID)
+          }
+        }
+      } catch (error){
+      console.error("Error fetching data:", error);
       }
     },
     async detailed_results(Name, ID){

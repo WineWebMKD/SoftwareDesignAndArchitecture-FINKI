@@ -59,6 +59,20 @@ async def get_result(encoded_city: str):
             "data": data, "city": decoded_city}
 
 
+@app.get("/get_occupation/{occupation}")
+async def get_occupation(occupation: str):
+    print(occupation)
+    df = pd.read_csv("filtered.csv")
+    df_copy = df.copy()
+    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
+    if occupation == 'vinarija':
+        data = df_copy[df_copy["Activities"].str.contains('винотеки (винарници)', regex=False)].to_json(orient="records")
+    else:
+        data = df_copy[df_copy["Activities"].str.contains("винарски визби", regex=False)].to_json(orient="records")
+    return {"message": "Connected to backend",
+            "data": data, "occupation": occupation}
+
+
 @app.get("/get_all_cities")
 async def get_all_coordinates():
     df = pd.read_csv("filtered.csv")
