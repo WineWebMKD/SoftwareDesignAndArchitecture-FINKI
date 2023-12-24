@@ -3,22 +3,28 @@
     <div class="inner-block-home">
       <div class="image-container">
         <div class="image-text">
-          Discover top wineries with just one click - your gateway to the finest wine experiences!
+          {{ language === 'EN' ? 'Discover top wineries with just one click - your gateway to the finest wine experiences!' : 'Здраво' }}
         </div>
         <img class="image" src="./WineWeb/HomePage_logo/Bright_Colorful_Playful_Funny_Donuts_Food_Circle_Logo__2_-removebg-preview.png" alt="HomePageImage">
       </div>
-<!--      <img class="image" src="./WineWeb/HomePage_logo/Bright_Colorful_Playful_Funny_Donuts_Food_Circle_Logo__2_-removebg-preview.png" alt="HomePageImage">-->
-<!--      <div class="image-text">-->
-<!--        Discover top wineries with just one click - your gateway to the finest wine experiences!-->
-<!--      </div>-->
       <router-link to="/map"><button class="home-page-button">SEARCH NOW</button></router-link>
     </div>
   </div>
 </template>
 
 <script>
+import {computed, ref, watch} from 'vue';
+import {useStore} from "vuex";
+
 export default {
-  // Component logic can be added here
+  setup() {
+    const store = useStore();
+    const language = computed(() => store.state.language);
+
+    return {
+      language,
+    };
+  },
 };
 </script>
 
@@ -27,7 +33,6 @@ export default {
 .image-container {
   position: relative;
   text-align: center; /* Center the text horizontally */
-  top: 45%;
 }
 
 .image {

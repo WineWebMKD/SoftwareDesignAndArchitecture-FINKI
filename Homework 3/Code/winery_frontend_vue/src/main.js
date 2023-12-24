@@ -9,11 +9,12 @@ import {createRouter, createWebHistory} from "vue-router";
 
 // main.js
 
-import * as Vue from 'vue';
+//import * as Vue from 'vue';
 // import Vue from 'vue';
 import App from './App.vue';// Import the router configuration
 
 import {createApp} from "vue";
+import store from "@/store";
 
 
 const router = createRouter({
@@ -44,6 +45,7 @@ const router = createRouter({
 
 createApp(App)
     .use(router)
+    .use(store) // Use your Vuex store
     .mount('#app')
 // new Vue({
 //     router, // Use the router

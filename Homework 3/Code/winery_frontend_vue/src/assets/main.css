@@ -30,7 +30,7 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  flex-direction: column;
+  /*flex-direction: column;*/
 }
 .bottom{
   border-radius: 40px 40px 0 0;
@@ -95,6 +95,7 @@ a:active{
   font-size: 24px;
 }
 .navigation-bar.top {
+  flex-direction: column;
   margin-bottom: 20px;
 }
 .inner-block-home{
