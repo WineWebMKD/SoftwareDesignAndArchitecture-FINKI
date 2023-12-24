@@ -1,8 +1,3 @@
-<script setup>
-import Contact from "@/components/Contact.vue";
-import Navbar from "@/components/Navbar.vue";
-</script>
-
 <template>
   <header>
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
@@ -12,21 +7,27 @@ import Navbar from "@/components/Navbar.vue";
     <div id="app">
       <Navbar />
       <router-view></router-view>
-      <div class="container">
-        <div class="navigation-bar bottom">
-        </div>
-      </div>
+      <Language />
     </div>
-<!--    <Contact />-->
   </main>
 </template>
 
 <script>
 import {defineComponent} from "vue";
 import Navbar from "@/components/Navbar.vue";
+import Language from "@/components/Language.vue";
+import { useStore } from 'vuex';
 
 export default defineComponent({
-  components: {Navbar}
+  components: {Navbar, Language},
+  setup() {
+    const store = useStore();
+    const language = store.state.language;
+
+    return {
+      language
+    };
+  },
 })
 </script>
 <style scoped>
