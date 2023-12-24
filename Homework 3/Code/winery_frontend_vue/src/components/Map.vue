@@ -61,14 +61,17 @@ import axios from 'axios';
 import L from 'leaflet';
 import {transliterate} from "transliteration";
 import {useStore} from "vuex";
-import {computed, watch} from "vue";
+import {computed} from "vue";
+import cyrillicToTranslit from "cyrillic-to-translit-js";
+
+
+
 
 export default {
   name: 'Map',
   setup() {
     const store = useStore();
     const language = computed(() => store.state.language);
-
     return {
       language,
     };
@@ -97,35 +100,47 @@ export default {
       maxZoom: 22,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map);
-    await this.get_all_data()
+    await this.get_all_data();
+    await this.createCities();
 
-    try {
-      console.log("Send request to backend for cities")
-      const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
-      const data = response.data['data'];
-      console.log("Parse data..")
-      const parsedData = JSON.parse(data);
-      console.log("Parsed data is:")
-      console.log(parsedData)
-      console.log(parsedData[0])
-      let latin = false;
-      if(this.language === 'EN'){
-        latin = true;
+  },
+  watch: {
+    language: async function (newLanguage) {
+      try {
+        console.log('Language changed:', newLanguage);
+        // Call the logic you want to execute when the language changes
+        await this.handleLanguageChange(newLanguage);
+      } catch (error) {
+        console.error('Error in watcher callback:', error);
       }
-      parsedData.forEach(obj => {
-        if(latin){
-          this.cities.push(transliterate(obj.City))
-        }else{
-          this.cities.push(obj.City)
-        }
-      });
-
-    } catch (error) {
-      console.error('Error fetching cities:', error);
     }
   },
-
   methods: {
+    async createCities(){
+      try {
+        console.log("Send request to backend for cities")
+        const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
+        const data = response.data['data'];
+        console.log("Parse data..")
+        const parsedData = JSON.parse(data);
+        console.log("Parsed data is:")
+        console.log(parsedData)
+        console.log(parsedData[0])
+        let latin = false;
+        if(this.language === 'EN'){
+          latin = true;
+        }
+        parsedData.forEach(obj => {
+          if(latin){
+            this.cities.push(transliterate(obj.City))
+          }else{
+            this.cities.push(obj.City)
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    },
     async removeAllMarkers() {
 
       this.map.eachLayer(layer => {
@@ -249,7 +264,7 @@ export default {
       }
     },
     async checkFilters(){
-      if(this.search_input === ""){ this.search_input = "No input"}
+      if(this.search_input === ""){this.search_input = "No input"}
       if(this.selectedCity === ""){ this.selectedCity = "all"}
       if(this.selectedOcc === ""){ this.selectedOcc = "any"}
 
@@ -299,28 +314,24 @@ export default {
     },
     async filterOccupation(){
       try{
-        if(this.selectedOcc === ""){
-          await this.get_all_data()
-        }else{
-          console.log(this.selectedOcc)
-          const occupation = this.selectedOcc
-          const response = await axios.get(`http://127.0.0.1:8000/get_occupation/${occupation}`);// Replace with your backend endpoint
-          const data = response.data['data'];
-          console.log("Parse data..")
-          const parsedData = JSON.parse(data);
-          console.log("Data from backend:", parsedData);
+        console.log(this.selectedOcc)
+        const occupation = this.selectedOcc
+        const response = await axios.get(`http://127.0.0.1:8000/get_occupation/${occupation}`);// Replace with your backend endpoint
+        const data = response.data['data'];
+        console.log("Parse data..")
+        const parsedData = JSON.parse(data);
+        console.log("Data from backend:", parsedData);
 
-          const resultSelect = document.getElementById("filter_results");
-          while (resultSelect.firstChild) {
-            resultSelect.removeChild(resultSelect.firstChild);
-          }
-          await this.resetDetails()
-          await this.removeAllMarkers()
-          const mappedData = await this.map_data(parsedData)
-          for (const obj of mappedData) {
-            await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
-            await this.detailed_results(obj.Name, obj.ID)
-          }
+        const resultSelect = document.getElementById("filter_results");
+        while (resultSelect.firstChild) {
+          resultSelect.removeChild(resultSelect.firstChild);
+        }
+        await this.resetDetails()
+        await this.removeAllMarkers()
+        const mappedData = await this.map_data(parsedData)
+        for (const obj of mappedData) {
+          await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
+          await this.detailed_results(obj.Name, obj.ID)
         }
       } catch (error){
       console.error("Error fetching data:", error);
@@ -330,7 +341,17 @@ export default {
       try {
         const resultSelect = document.getElementById("filter_results");
         const div_result = document.createElement("div");
-        div_result.textContent = Name;
+        let latin = false;
+        if(this.language === 'EN'){
+          latin = true;
+        }
+
+        if(latin){
+          div_result.textContent = cyrillicToTranslit().transform(Name, " ");
+        }else{
+          div_result.textContent = cyrillicToTranslit().reverse(Name);
+        }
+
         div_result.addEventListener('click', () => {
           this.getDataFromBackend(ID);
         });
@@ -338,6 +359,26 @@ export default {
 
       } catch (error){
         console.error("Error fetching data:", error);
+      }
+    },
+    async handleLanguageChange(newLanguage){
+      try {
+        let old_selection = this.selectedCity
+        this.cities = []
+        await this.createCities();
+        if (old_selection !== 'all'){
+          if(newLanguage === 'EN'){
+            this.selectedCity = cyrillicToTranslit().transform(old_selection, " ");
+          }else{
+            this.selectedCity = cyrillicToTranslit().reverse(old_selection);
+          }
+        }else{
+          this.selectedCity = old_selection
+        }
+        await this.checkFilters();
+        await this.resetDetails();
+      } catch (error){
+        console.error("Error changing language:", error);
       }
     }
   }
