@@ -3,19 +3,19 @@
     <div class="left-block">
       <div >
         <i id="search_icon"><img src="./WineWeb/Icons/Search_icon.png" alt="" @click="checkFilters()"/></i>
-        <input v-model="search_input" class="search-bar-map" type="text" placeholder="Name/Address">
+        <input v-model="search_input" class="search-bar-map" type="text" :placeholder="language === 'EN' ? 'Name/Address' : 'Име/Адреса'">
       </div>
-      <label>City</label>
+      <label>{{ language === 'EN' ? 'City' : 'Град' }}</label>
       <select v-model="selectedCity" id="select-bar-map1" name="City" @change="checkFilters()">
-        <option value="all">All</option>
+        <option value="all">{{ language === 'EN' ? 'All' : 'Сите' }}</option>
         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
         <!-- Options for City select -->
       </select >
-      <label>Occupation</label>
+      <label>{{ language === 'EN' ? 'Occupation' : 'Занимање' }}</label>
       <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="checkFilters()">
-        <option value="any">Any</option>
-        <option value="vizba">Визба</option>
-        <option value="vinarija">Винарија</option>
+        <option value="any">{{ language === 'EN' ? 'Any' : 'Било какво' }}</option>
+        <option value="vizba">{{ language === 'EN' ? 'Wine cellar' : 'Визба' }}</option>
+        <option value="vinarija">{{ language === 'EN' ? 'Winery' : 'Винарија' }}</option>
         <!-- Options for Occupation select -->
       </select>
       <label>Results</label>
@@ -29,19 +29,19 @@
       </div>
     </div>
     <div class="right-block">
-      <h2 class="h2-map">Details</h2>
+      <h2 class="h2-map">{{ language === 'EN' ? 'More information' : 'Повеќе информации' }}</h2>
       <div class="right-block-details">
-        <label>Address:</label>
+        <label>{{ language === 'EN' ? 'Address:' : 'Адреса:' }}</label>
         <div class="address-result">
           {{ address }}
           <!-- Address result -->
         </div>
-        <label>Working hours:</label>
+        <label>{{ language === 'EN' ? 'Working hours:' : 'Работно време' }}</label>
         <div class="working-hrs-result">
           {{ working_hours }}
           <!-- Working hours result -->
         </div>
-        <label>Contact:</label>
+        <label>{{ language === 'EN' ? 'Contact:' : 'Контакт:' }}</label>
         <div class="contact-result">
           <div>{{contact}}</div>
           <!-- Contact result -->
@@ -60,10 +60,19 @@
 import axios from 'axios';
 import L from 'leaflet';
 import {transliterate} from "transliteration";
+import {useStore} from "vuex";
+import {computed, watch} from "vue";
 
 export default {
   name: 'Map',
+  setup() {
+    const store = useStore();
+    const language = computed(() => store.state.language);
 
+    return {
+      language,
+    };
+  },
   data() {
     return {
       address: "null",

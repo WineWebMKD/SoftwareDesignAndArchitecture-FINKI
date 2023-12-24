@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import {computed, ref, watch} from 'vue';
+import {computed} from 'vue';
 import {useStore} from "vuex";
 
 export default {
