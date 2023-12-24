@@ -3,15 +3,19 @@
     <div class="left-block">
       <input class="search-bar-map" type="text" placeholder="         Name/Address">
       <label>City</label>
-      <select class="select-bar-map1" name="City">
+      <select id="select-bar-map1" name="City">
+        <option value="">None</option>
         <!-- Options for City select -->
       </select>
       <label>Occupation</label>
       <select class="select-bar-map2" name="Occupation">
+        <option value="">None</option>
+        <option value="vizba">Визба</option>
+        <option value="vinarija">Винарија</option>
         <!-- Options for Occupation select -->
       </select>
       <label>Results</label>
-      <div class="left-block-results">
+      <div class="left-block-results" id="filter_results">
         <!-- Results content -->
       </div>
     </div>
@@ -24,7 +28,7 @@
       <h2 class="h2-map">Details</h2>
       <div class="right-block-details">
         <label>Address:</label>
-        <div id="address-result">
+        <div class="address-result">
           {{ address }}
           <!-- Address result -->
         </div>
@@ -35,10 +39,10 @@
         </div>
         <label>Contact:</label>
         <div class="contact-result">
+          <div>{{contact}}</div>
           <!-- Contact result -->
         </div>
         <div class="social-result">
-          <div>{{contact}}</div>
           <a :href="facebook"><img class="fejs" src="./WineWeb/Icons/Facebook_icon.png" alt="Facebook"></a>
           <a :href="instagram"><img class="insta" src="./WineWeb/Icons/Insta_icon.png" alt="Instagram"></a>
           <a :href="webpage"><img class="web" src="./WineWeb/Icons/WebPage_icon.png" alt="Site"></a>
@@ -64,12 +68,13 @@ export default {
       webpage: null,
       contact: "no.",
       map: null,
-      entries: []
+      entries: [],
+      cities: []
     };
   },
   async mounted() {
     // Create the map
-    let map = L.map(this.$refs.map).setView([51.505, -0.09], 13);
+    let map = L.map(this.$refs.map).setView([41.6086, 21.7453], 8);
 
     // Add OpenStreetMap tile layer
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -86,6 +91,7 @@ export default {
       console.log("Parsed data is:")
       console.log(parsedData)
       console.log(parsedData[0])
+
       //map out data columns
       let Wineries = parsedData.map(obj => {
         return {
@@ -97,6 +103,8 @@ export default {
         };
       });
       console.log(Wineries)
+      const resultSelect = document.getElementById("filter_results");
+
       for (let i = 0; i < Wineries.length; i++) {
         //get specific coordinates
         let coordinate = Wineries[i];
@@ -109,12 +117,45 @@ export default {
         });
         //console print coordinates (check)
         console.log(`Coordinate ${coordinate.ID}: (${coordinate.Latitude}, ${coordinate.Longitude})`);
+
+        const div_result = document.createElement("div");
+        div_result.textContent = coordinate.Name;
+        div_result.addEventListener('click', () => {
+          this.getDataFromBackend(coordinate.ID);
+        });
+        resultSelect.appendChild(div_result);
+
       }
 
     } catch (error) {
       console.error('Error fetching data:', error);
     }
+    try {
+      console.log("Send request to backend for cities")
+      const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
+      const cities = response.data['data'];
+      console.log("Parse data..")
+      const parsedData = JSON.parse(cities);
+      console.log("Parsed data is:")
+      console.log(parsedData)
+      console.log(parsedData[0])
 
+      const citySelect = document.getElementById("select-bar-map1");
+      citySelect.addEventListener("change", () => {
+        const selectedOption = citySelect.value;
+        this.filterResults(selectedOption);
+      });
+
+      parsedData.forEach(obj => {
+        const option = document.createElement("option");
+        option.value = obj.City;
+        option.textContent = obj.City;
+        citySelect.appendChild(option);
+      });
+
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+    }
   },
 
   methods: {
@@ -130,7 +171,7 @@ export default {
           return {
             ID: obj.ID,
             Address: obj.Address,
-            Working_Hours: obj.Working_Hours,
+            Working_Hours: obj['Working Hours'],
             Facebook: obj.Facebook,
             Instagram: obj.Instagram,
             WebPage: obj.WebPage,
@@ -139,7 +180,7 @@ export default {
         });
         console.log(target)
         this.address = `${target[0].Address}`
-        this.working_hours = `${target[0].Working_hours}`
+        this.working_hours = `${target[0].Working_Hours}`
         this.facebook = `${target[0].Facebook}`
         this.instagram = `${target[0].Instagram}`
         this.webpage = `${target[0].WebPage}`
@@ -148,17 +189,43 @@ export default {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }}
+    },
+    async filterResults(selectedOption) {
+      const response = await axios.get(`http://127.0.0.1:8000/get_data/${selectedOption}`);// Replace with your backend endpoint
+      const data = response.data['data'];
+      console.log("Parse data..")
+      const parsedData = JSON.parse(data);
+      console.log("Data from backend:", parsedData);
 
+
+    }
+  }
 };
 </script>
 <style scoped>
 @import "leaflet/dist/leaflet.css";
 
 /* Your CSS styles can be placed here */
-#map{
+#map {
   width: 98%;
   height: 98%;
   overflow: hidden;
+}
+
+/* Define scrollbar styles for WebKit browsers (Chrome, Safari) */
+.left-block-results::-webkit-scrollbar {
+  margin-right: 5px;
+  width: 5px; /* Set the width of the scrollbar */
+  background-color: #fff;
+}
+
+.left-block-results::-webkit-scrollbar-thumb {
+  margin-right: -5px;
+  background-color: #fff; /* Set the color of the scrollbar thumb */
+  border: 10px solid #ccc; /* Set the width and color of the border around the thumb */
+}
+
+.left-block-results::-webkit-scrollbar-track {
+  background-color: transparent; /* Set the color of the scrollbar track */
 }
 </style>

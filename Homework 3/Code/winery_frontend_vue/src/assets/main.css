@@ -82,20 +82,12 @@ a:active{
   flex-direction: column;
   justify-content: space-between;
 }
-.inner-block-about {
-  background-color: #B18B6A;
-  padding: 50px;
-
-  margin: 0 auto;
-  text-align: center;
-  height: 450px;
-  width: 450px;
-}
 
 .title {
   color: #7D1310;
   font-size: 26px;
   margin-top: 25%;
+
 }
 
 .content {
@@ -109,23 +101,6 @@ a:active{
   display: flex;
   justify-content: center;
 
-}
-
-.home-page-button{
-  position: absolute;
-  top: 62%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  background-color: #7D1310;
-  color: white;
-  font-size: 20px;
-  padding: 12px 24px;
-  border: none;
-  cursor: pointer;
-  border-radius: 30px;
-  width: 250px;
-  height: 50px;
 }
 
 .outer-block-contact{
@@ -151,6 +126,7 @@ a:active{
   display: flex;
   flex-direction: column;
   align-items: center;
+
 }
 
 .form-field {
@@ -260,6 +236,8 @@ div.outer-block-map > div.left-block > select{
 .left-block-results{
   width: 350px;
   height: 400px;
+  overflow-y: auto;
+  direction: rtl;
   background: #B18B6A;
   margin-top: 20px;
   margin-left: 20px;
@@ -280,7 +258,6 @@ div.outer-block-map > div.left-block > select{
   flex-direction: column;
   justify-content: center;
 }
-
 .address-result{
   margin-left: 25px;
   width: 300px;
@@ -317,8 +294,8 @@ div.outer-block-map > div.right-block > div > label
   height: 100px;
   border-radius: 10px;
 }
-
-div.outer-block-map > div.right-block > div > div.social-result > a > img {
+div.outer-block-map > div.right-block > div > div.social-result > a > img
+{
   width: 70px;
   height: 70px;
   padding-right: 25px;
