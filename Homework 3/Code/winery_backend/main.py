@@ -1,7 +1,10 @@
+import smtplib, ssl
+from email.mime.text import MIMEText
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fuzzywuzzy import fuzz
+from pydantic import BaseModel
 from transliterate import translit, get_available_language_codes
 
 origins = [
@@ -19,6 +22,44 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class FormData(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+
+
+def send_email(form_data: FormData):
+    sender_email = "temporarywinery@gmail.com"
+    sender_password = "mswh howm pvqd xnxv"
+    body = f"""
+    Name: {form_data.name}
+    Email: {form_data.email}
+    Subject: {form_data.subject}
+    Message: {form_data.message}
+    """
+    msg = MIMEText(body)
+    msg['Subject'] = form_data.subject
+    msg['From'] = form_data.name
+    msg['To'] = sender_email
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(sender_email, sender_password)
+        smtp_server.sendmail(sender_email, sender_email, msg.as_string())
+    print("Message sent!")
+
+
+@app.post("/submit-form")
+async def submit_form(form_data: FormData):
+    try:
+        print("Trying to send email")
+        print(form_data)
+        send_email(form_data)
+        return {"message": "Email sent successfully!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error sending email: {str(e)}")
 
 
 @app.get("/")
@@ -119,7 +160,7 @@ async def get_filtered_data(encoded_city: str, occupation: str, encoded_input: s
         data = input_filter.to_json(orient="records")
     else:
         data = filtered_data.to_json(orient="records")
-        
+
     return {"message": "Connected to backend",
             "data": data}
 

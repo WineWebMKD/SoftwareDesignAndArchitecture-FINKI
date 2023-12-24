@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -40,22 +41,17 @@ export default {
     };
   },
   methods: {
-    submitForm() {
-      // You can perform form validation here before sending the data
-      // For example, check if the required fields are filled
+    async submitForm() {
+      try {
+        // Send email
+        await axios.post('http://127.0.0.1:8000/submit-form', this.formData);
 
-      // Assuming you are using axios for making HTTP requests
-      // Replace 'http://localhost:yourport/yourendpoint' with your backend URL
-      console.log("WOOT")
-      // axios.post('http://localhost:yourport/yourendpoint', this.formData)
-      //     .then(response => {
-      //       console.log('Form submitted successfully!', response);
-      //       // Handle success, show a success message, or redirect the user
-      //     })
-      //     .catch(error => {
-      //       console.error('Error submitting form:', error);
-      //       // Handle error, show an error message
-      //     });
+        // Handle success (e.g., show a success message)
+        console.log('Email sent successfully!');
+      } catch (error) {
+        // Handle error (e.g., show an error message)
+        console.error('Error sending email:', error);
+      }
     }
   }
 };
