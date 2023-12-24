@@ -26,10 +26,12 @@ const router = createRouter({
         },
         {
             path: '/home',
+            name: 'Home',
             component: Home
         },
         {
             path: '/about',
+            name: 'About',
             component: About
         },
         {
@@ -38,11 +40,25 @@ const router = createRouter({
         },
         {
             path: '/contact',
+            name: 'Contact',
             component: Contact
         }
     ]
 })
-
+router.beforeEach((to, from, next) => {
+    document.body.classList.add('background-image')
+    if (to.name === 'Home') {
+        document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/homepage_background.png)';
+    } else if (to.name === 'About') {
+        document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/about_page_background.png)';
+    } else if (to.name === 'Contact') {
+        // Reset background for other routes
+        document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/contact_page_background.png)';
+    } else{
+        document.body.style.backgroundImage = 'none';
+    }
+    next();
+});
 createApp(App)
     .use(router)
     .use(store) // Use your Vuex store

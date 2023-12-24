@@ -9,7 +9,6 @@
       <router-view></router-view>
       <Language />
     </div>
-<!--    <Contact />-->
   </main>
 </template>
 

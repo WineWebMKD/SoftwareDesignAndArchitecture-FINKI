@@ -34,6 +34,7 @@ export default {
 </script>
 
 <style scoped>
+
 /* Your CSS styles can be placed here */
 .image-container {
   position: relative;
