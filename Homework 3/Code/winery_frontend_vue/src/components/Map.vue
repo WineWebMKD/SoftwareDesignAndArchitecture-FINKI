@@ -81,12 +81,12 @@ export default {
   },
   data() {
     return {
-      address: "null",
-      working_hours: "null",
+      address: null,
+      working_hours: null,
       facebook: null,
       instagram: null,
       webpage: null,
-      contact: "no.",
+      contact: null,
       map: null,
       entries: [],
       cities: [],
@@ -380,6 +380,7 @@ export default {
         while (resultSelect.firstChild) {
           resultSelect.removeChild(resultSelect.firstChild);
         }
+        await this.resetDetails()
         await this.removeAllMarkers()
         const mappedData = await this.map_data(parsedData)
         for (const obj of mappedData) {
