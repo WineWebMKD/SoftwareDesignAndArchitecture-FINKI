@@ -22,7 +22,6 @@
         <label for="message">{{ language === 'EN' ? 'Message:' : 'Порака:' }}</label>
         <textarea id="message" name="message" v-model="formData.message"></textarea>
       </div>
-
       <button type="submit" class="submit-button">{{ language === 'EN' ? 'SUBMIT' : 'ПОДНЕСЕТЕ' }}</button>
     </form>
   </div>
@@ -58,16 +57,36 @@ export default {
         await axios.post('http://127.0.0.1:8000/submit-form', this.formData);
 
         // Handle success (e.g., show a success message)
-        console.log('Email sent successfully!');
+        this.resetForm();
+        // Show success message (you can replace this with a more styled notification)
+        alert(this.language === 'EN' ? 'Message sent successfully!' : 'Пораката е успешно испратена!');
       } catch (error) {
         // Handle error (e.g., show an error message)
         console.error('Error sending email:', error);
+        alert(this.language === 'EN' ? 'Error while sending message!' : 'Проблем при испраќање на пораката!');
       }
+    },
+    resetForm() {
+      // Reset form fields
+      this.formData = {
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      };
     }
   }
 };
 </script>
 
 <style>
-/* Your existing CSS styles can be placed here */
+.form-title {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+  color: #7D1310;
+  font-size: 1em;
+  text-align: center;
+  font-weight: bold;
+}
 </style>

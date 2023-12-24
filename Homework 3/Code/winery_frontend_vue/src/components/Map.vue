@@ -3,24 +3,29 @@
     <div class="left-block">
       <div >
         <i id="search_icon"><img src="./WineWeb/Icons/Search_icon.png" alt="" @click="checkFilters()"/></i>
-        <input v-model="search_input" class="search-bar-map" type="text" :placeholder="language === 'EN' ? 'Name/Address' : 'Име/Адреса'">
+        <input v-model="search_input" class="search-bar-map" type="text" :style="{ color: search_input === 'No input' ? 'transparent' : 'white' }"
+               :placeholder="language === 'EN' ? 'Name/Address' : 'Име/Адреса'">
       </div>
-      <label>{{ language === 'EN' ? 'City' : 'Град' }}</label>
-      <select v-model="selectedCity" id="select-bar-map1" name="City" @change="checkFilters()">
-        <option value="all">{{ language === 'EN' ? 'All' : 'Сите' }}</option>
-        <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
-        <!-- Options for City select -->
-      </select >
-      <label>{{ language === 'EN' ? 'Occupation' : 'Занимање' }}</label>
-      <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="checkFilters()">
-        <option value="any">{{ language === 'EN' ? 'Any' : 'Било какво' }}</option>
-        <option value="vizba">{{ language === 'EN' ? 'Wine cellar' : 'Визба' }}</option>
-        <option value="vinarija">{{ language === 'EN' ? 'Winery' : 'Винарија' }}</option>
-        <!-- Options for Occupation select -->
-      </select>
-      <label>Results</label>
-      <div class="left-block-results" id="filter_results">
+      <div>
+        <label>{{ language === 'EN' ? 'City:' : 'Град:' }}</label>
+        <select v-model="selectedCity" id="select-bar-map1" name="City" @change="checkFilters()">
+          <option value="all">{{ language === 'EN' ? 'All' : 'Сите' }}</option>
+          <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
+          <!-- Options for City select -->
+        </select >
+        <label>{{ language === 'EN' ? 'Occupation:' : 'Занимање:' }}</label>
+        <select v-model="selectedOcc" class="select-bar-map2" name="Occupation" @change="checkFilters()">
+          <option value="any">{{ language === 'EN' ? 'Any' : 'Било какво' }}</option>
+          <option value="vizba">{{ language === 'EN' ? 'Wine cellar' : 'Визба' }}</option>
+          <option value="vinarija">{{ language === 'EN' ? 'Winery' : 'Винарија' }}</option>
+          <!-- Options for Occupation select -->
+        </select>
+      </div>
+      <label>{{ language === 'EN' ? 'Results:' : 'Резултати:' }}</label>
+      <div class="left-block-results">
+        <div class="left-block-results" id="filter_results">
         <!-- Results content -->
+        </div>
       </div>
     </div>
     <div class="center-block">
@@ -47,9 +52,9 @@
           <!-- Contact result -->
         </div>
         <div class="social-result">
-          <a :href="facebook"><img class="fejs" src="./WineWeb/Icons/Facebook_icon.png" alt="Facebook"></a>
-          <a :href="instagram"><img class="insta" src="./WineWeb/Icons/Insta_icon.png" alt="Instagram"></a>
-          <a :href="webpage"><img class="web" src="./WineWeb/Icons/WebPage_icon.png" alt="Site"></a>
+          <a :href="facebook"><img class="fejs" :class="{ 'inactive-link': !facebook}" src="./WineWeb/Icons/Facebook_icon.png" alt="Facebook"></a>
+          <a :href="instagram"><img class="insta" :class="{ 'inactive-link': !instagram}" src="./WineWeb/Icons/Insta_icon.png" alt="Instagram"></a>
+          <a :href="webpage"><img class="web" :class="{ 'inactive-link': !webpage}" src="./WineWeb/Icons/WebPage_icon.png" alt="Site"></a>
         </div>
       </div>
     </div>
@@ -63,8 +68,6 @@ import {transliterate} from "transliteration";
 import {useStore} from "vuex";
 import {computed} from "vue";
 import cyrillicToTranslit from "cyrillic-to-translit-js";
-
-
 
 
 export default {
@@ -116,6 +119,54 @@ export default {
     }
   },
   methods: {
+    translate(text) {
+      const translations = {
+        'Okhrid': 'Ohrid',
+        'Vinari\u0458a': 'Winery',
+        'Vineri\u0458a-Kralitsa': 'Winery-Queen',
+        'vineri\u0458a': 'Winery',
+        'Vineri': 'Winery',
+        'Gotse': 'Goce',
+        'Vinski': 'Wine',
+        'podrum': 'Cellar',
+        'Tikvesh-Prodavnitsa': 'Tikvesh',
+        'Tsentar': ' ',
+        'Direktsi\u0458a': 'directorate',
+        'direktsi\u0458a': 'directorate',
+        'vinari\u0458a': 'Winery',
+        'Vinari': 'Winery',
+        'vinari': 'Winery',
+        'Vinarska': 'Winery',
+        'vizba': 'Cellar',
+        'Vizba': 'Cellar',
+        'Va\u0458n': 'Wine',
+        'va\u0458n': 'Wine',
+        'Vino': 'Wine',
+        'vino': 'Wine',
+        'Rabotno': 'Open',
+        'vreme:': ':',
+        'Pon': 'Mon',
+        'Pet': 'Fri',
+        'Sab': 'Sat',
+        'Ned': 'Sun',
+        'Sre': 'Wed',
+        'Chet': 'Thr',
+        'od': 'from',
+        'do': 'till'
+        // Add more translations as needed
+      };
+      // Convert both text and translation keys to lowercase and remove extra spaces
+      const words = text.split(' ');
+      console.log('spliting: '+words)
+      // Translate each word using the mapping
+      const translatedWords = words.map(word => translations[word] || word);
+
+      // Join the translated words back into a string
+      const translatedText = translatedWords.join(' ');
+      console.log(translatedText);
+
+      return translatedText;
+    },
     async createCities(){
       try {
         console.log("Send request to backend for cities")
@@ -151,7 +202,15 @@ export default {
     },
     async addNewMarker(latitude, longitude, id, name) {
       // Assuming 'this.map' is your Leaflet map object
-      const marker = L.marker([latitude, longitude]).addTo(this.map);
+      let redIcon = L.icon({
+        iconUrl: 'src/components/WineWeb/Icons/custom_red_marker.png',
+        iconSize:     [50, 50], // size of the icon
+        iconAnchor:   [25, 50], // point of the icon which will correspond to marker's location
+        popupAnchor:  [0, -25] // point from which the popup should open relative to the iconAnchor
+      });
+
+      //Create a marker with the red icon
+      const marker = L.marker([latitude, longitude], { icon: redIcon }).addTo(this.map);
       marker.bindPopup(`<b>${name}</b>`);
       marker.on('click', () => {
           this.getDataFromBackend(id);
@@ -207,12 +266,12 @@ export default {
       }
     },
     async resetDetails(){
-      this.address = "null"
-      this.working_hours = "null"
+      this.address = null
+      this.working_hours = null
       this.facebook = null
       this.instagram = null
       this.webpage = null
-      this.contact = "no."
+      this.contact = null
     },
     async getDataFromBackend(markerId) {
       try {
@@ -226,12 +285,29 @@ export default {
 
 
         console.log(target)
-        this.address = `${target[0].Address}`
-        this.working_hours = `${target[0].Working_Hours}`
+        let latin = false;
+        if(this.language === 'EN'){
+          latin = true;
+        }
+
+        if(latin){
+          this.address = cyrillicToTranslit().transform(`${target[0].Address}`, " ");
+          let temp = cyrillicToTranslit().transform(`${target[0].Working_Hours}`, " ");
+          this.working_hours = await this.translate(temp);
+
+        }else{
+          this.address = cyrillicToTranslit().reverse(`${target[0].Address}`)
+          let temp = cyrillicToTranslit().reverse(`${target[0].Working_Hours}`);
+          this.working_hours = this.translate(temp);
+        }
         this.facebook = `${target[0].Facebook}`
         this.instagram = `${target[0].Instagram}`
         this.webpage = `${target[0].WebPage}`
         this.contact = `${target[0].Numbers}`
+        //Checking links
+        this.facebook = target[0].Facebook !== 'https://' ? target[0].Facebook : null;
+        this.instagram = target[0].Instagram !== 'https://' ? target[0].Instagram : null;
+        this.webpage = target[0].WebPage !== 'https://' ? target[0].WebPage : null;
 
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -277,7 +353,9 @@ export default {
           }
         } else if(this.search_input === "No input"){
           await this.filterOccupation()
-        } else await this.filterResults()
+        } else {
+          await this.filterResults()
+        }
       }else{
         await this.filterResults()
       }
@@ -341,20 +419,24 @@ export default {
       try {
         const resultSelect = document.getElementById("filter_results");
         const div_result = document.createElement("div");
+
         let latin = false;
         if(this.language === 'EN'){
           latin = true;
         }
-
         if(latin){
-          div_result.textContent = cyrillicToTranslit().transform(Name, " ");
+          let temp = cyrillicToTranslit().transform(Name, " ");
+          console.log("Name:" +Name)
+          console.log("Change:"+temp)
+          div_result.textContent = await this.translate(temp)
         }else{
-          div_result.textContent = cyrillicToTranslit().reverse(Name);
+          div_result.textContent = cyrillicToTranslit().reverse(Name, " ");
         }
 
         div_result.addEventListener('click', () => {
           this.getDataFromBackend(ID);
         });
+        div_result.classList.add("result_divs")
         resultSelect.appendChild(div_result);
 
       } catch (error){
@@ -388,12 +470,23 @@ export default {
 @import "leaflet/dist/leaflet.css";
 
 /* Your CSS styles can be placed here */
+.social-result .inactive-link {
+  pointer-events: none;  /* Make the link non-clickable */
+  opacity: 0.5;          /* Adjust the opacity as needed (0.5 for 50% transparency) */
+}
+
 #map {
   width: 98%;
   height: 98%;
   overflow: hidden;
 }
 
+#filter_results {
+  border-radius: 0;
+  margin-right: 5%;
+  width: 95%;
+  height: 95%;
+}
 /* Define scrollbar styles for WebKit browsers (Chrome, Safari) */
 .left-block-results::-webkit-scrollbar {
   margin-right: 5px;
@@ -402,7 +495,6 @@ export default {
 }
 
 .left-block-results::-webkit-scrollbar-thumb {
-  margin-right: -5px;
   background-color: #fff; /* Set the color of the scrollbar thumb */
   border: 10px solid #ccc; /* Set the width and color of the border around the thumb */
 }
@@ -412,12 +504,22 @@ export default {
 }
 
 #search_icon {
-  margin-left: 20px;
-  width: 20px;
-  height: 20px;
+  margin-left: 5%;
+  margin-top: 1%;
+  width: 25px;
+  height: 25px;
 }
 #search_icon > img {
-  width: 20px;
-  height: 20px;
+  align-content: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
 }
+body{
+  background-color: #e1c6a8;
+}
+::placeholder {
+  color: white;
+}
+
 </style>

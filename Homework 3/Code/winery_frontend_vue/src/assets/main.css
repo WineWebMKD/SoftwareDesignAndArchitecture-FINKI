@@ -14,6 +14,7 @@ body {
   align-items: center;
   justify-content: flex-start;
   height: calc(100vh - 70px - 70px - 40px);
+  background-color: #e1c6a8;
 }
 
 .background-image {
@@ -34,6 +35,7 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  color: white;
   /*flex-direction: column;*/
 }
 
@@ -47,7 +49,30 @@ ul {
   padding: 5%;
   display: flex;
   justify-content: space-evenly;
+  align-content: space-evenly;
 
+}
+button.inactive{
+  color: lightgray;
+  pointer-events: none;
+}
+.navigation-bar li.active {
+  font-weight: 1000;
+  color: inherit;
+  pointer-events: none;
+  /* Add any other styles for active state */
+}
+.navigation-bar ul li:hover {
+  color: inherit !important; /* Change the color on hover */
+}
+.navigation-bar li.active {
+  font-weight: 1000;
+  color: inherit;
+  pointer-events: none;
+  /* Add any other styles for active state */
+}
+.navigation-bar ul li:hover {
+  color: inherit !important; /* Change the color on hover */
 }
 
 li {
@@ -117,22 +142,14 @@ a:active{
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.form-title {
-  color: #7D1310;
-  font-size: 22px;
-  text-align: center;
-  font-weight: bold;
-  padding-top: 50px;
 }
 
 .inner-block-contact {
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  width: 100%;
+  height: 20%;
 }
 
 .form-field {
@@ -140,10 +157,10 @@ a:active{
   border-radius: 10px;
   color: white;
   font-size: 14px;
-  margin: 10px;
-  padding: 15px;
-  width: 600px;
-  height: 60px;
+  margin: 1%;
+  padding: 3%;
+  width: 90%;
+  height: 10%;
   display: flex;
   align-items: center;
 }
@@ -169,8 +186,7 @@ a:active{
 .submit-button:hover {
   background-color: #4E0D0A; /* Change the color on hover if desired */
 }
-input
-{
+input {
   background: #B18B6A;
   border: none;
   height: 25px;
@@ -203,105 +219,134 @@ textarea{
 
 .left-block {
   background: #CFAA87;
-  width: 400px;
+  width: 30%;
   display: flex;
   flex-direction: column;
-
   /* Avoid specifying height unless necessary */
 }
 
 .right-block {
   background: #CFAA87;
-  width: 400px;
+  width: 30%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-content: center;
-  margin-left: auto; /* Push to the right */
+  flex-direction: column;
 }
 div.outer-block-map > div.left-block > div > input{
   background: #B18B6A;
-  margin-left: 20px;
-  border-radius: 10px;
+  margin-left: 4%;
+  border-radius: 5px;
   height: 30px;
+  width: 78%;
+  color: white;
+}
+div.outer-block-map > div.left-block > div > label{
+  padding-top: 1%;
+  padding-left: 5%;
   color: white;
 }
 div.outer-block-map > div.left-block > label{
-  padding-top: 20px;
-  padding-left: 20px;
+  padding-top: 1%;
+  padding-left: 5%;
   color: white;
 }
-div.outer-block-map > div.left-block > select{
-  height: 30px;
-  width: 100px;
+div.outer-block-map > div.left-block > div{
+  display: flex;
+  margin-top: 1%;
+}
+div.outer-block-map > div.left-block > div > select{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  height: 20px;
+  width: 25%;
   background: #B18B6A;
-  margin-left: 20px;
-  border-radius: 20px;
+  margin-top: 1%;
+  margin-left: 1%;
+  border-radius: 5px;
+  color: white;
 }
 .left-block-results{
-  width: 350px;
-  height: 400px;
+  width: 90%;
+  height: 90%;
   overflow-y: auto;
   direction: rtl;
   background: #B18B6A;
-  margin-top: 20px;
-  margin-left: 20px;
-  border-radius: 20px;
+  margin-top: 2%;
+  margin-left: 5%;
+  border-radius: 10px;
 }
 .h2-map{
-  margin-left: 150px;
-  margin-top: 50px;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
   color: #7D1310;
 }
 .right-block-details{
-  width: 350px;
-  height: 650px;
-  margin-left: 20px;
+  width: 90%;
+  height: 100%;
+  margin-left: 5%;
   background: #B18B6A;
-  border-radius: 20px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 .address-result{
-  margin-left: 25px;
-  width: 300px;
-  height: 50px;
+  color: #7D1310;
+  margin-left: 10%;
+  width: 60%;
+  height: 10%;
   background: #B18B6A;
   border-radius: 10px;
 }
 .contact-result{
-  margin-left: 25px;
-  width: 300px;
-  height: 50px;
+  color: #7D1310;
+  margin-left: 10%;
+  width: 60%;
+  height: 10%;
   background: #B18B6A;
   border-radius: 10px;
 }
 .working-hrs-result{
-  margin-left: 25px;
-  width: 300px;
-  height: 50px;
+  color: #7D1310;
+  margin-left: 10%;
+  width: 60%;
+  height: 10%;
   background: #B18B6A;
   border-radius: 10px;
 }
 div.outer-block-map > div.right-block > div > label
 {
-  padding-top: 20px;
-  font-size: 22px;
-  padding-left: 25px;
+  padding-top: 10%;
+  font-size: 1.2em;
+  padding-left: 10%;
   color: white;
 }
-.social-result
-{
-  margin-top: 40px;
-  margin-left: 25px;
-  width: 300px;
-  height: 100px;
-  border-radius: 10px;
+.social-result {
+  margin-top: 10%;
+  width: 100%;
+  height: 10%;
+  border-radius: 1%;
+  margin-left: 25%;
 }
-div.outer-block-map > div.right-block > div > div.social-result > a > img
-{
-  width: 70px;
-  height: 70px;
-  padding-right: 25px;
+div.outer-block-map > div.right-block > div > div.social-result > a > img {
+  width: 35px;
+  height: 35px;
+  padding-right: 10%;
+}
+.result_divs{
+  width: 97%;
+  height: 10%;
+  padding-top: 1%;
+  padding-left: 1%;
+  margin-top: 2%;
+  margin-left: 2%;
+  font-size: 1em;
+  text-align: center;
+  color: #7D1310;
+  border-radius: 5px;
+  background-color: #e1c6a8;
 }

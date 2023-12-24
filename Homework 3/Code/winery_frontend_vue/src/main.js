@@ -55,7 +55,7 @@ router.beforeEach((to, from, next) => {
         // Reset background for other routes
         document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/contact_page_background.png)';
     } else{
-        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/map_page_background.png)';
     }
     next();
 });

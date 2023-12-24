@@ -68,7 +68,7 @@ export default {
 
 .home-page-button{
   position: absolute;
-  top: 58%;
+  top: 73%;
   left: 50%;
   transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
