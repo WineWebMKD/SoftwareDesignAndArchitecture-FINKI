@@ -108,9 +108,16 @@ export default {
       console.log("Parsed data is:")
       console.log(parsedData)
       console.log(parsedData[0])
-
+      let latin = false;
+      if(this.language === 'EN'){
+        latin = true;
+      }
       parsedData.forEach(obj => {
-        this.cities.push(obj.City)
+        if(latin){
+          this.cities.push(transliterate(obj.City))
+        }else{
+          this.cities.push(obj.City)
+        }
       });
 
     } catch (error) {
