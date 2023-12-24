@@ -229,7 +229,7 @@ export default {
           await this.detailed_results(obj.Name, obj.ID)
         }
       } catch (error){
-        console.error("Error fetching data:", error);
+        console.error("Error fetchigit ng data:", error);
       }
     },
     async checkFilters(){
