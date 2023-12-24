@@ -213,9 +213,8 @@ textarea{
   align-content: center;
   margin-left: auto; /* Push to the right */
 }
-div.outer-block-map > div.left-block > input{
+div.outer-block-map > div.left-block > div > input{
   background: #B18B6A;
-  margin-top: 70px;
   margin-left: 20px;
   border-radius: 10px;
   height: 30px;
