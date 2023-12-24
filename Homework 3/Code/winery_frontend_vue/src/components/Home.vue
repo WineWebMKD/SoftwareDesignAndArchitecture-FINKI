@@ -3,11 +3,16 @@
     <div class="inner-block-home">
       <div class="image-container">
         <div class="image-text">
-          {{ language === 'EN' ? 'Discover top wineries with just one click - your gateway to the finest wine experiences!' : 'Здраво' }}
+          {{ language === 'EN' ? 'Discover top wineries with just one click - your gateway to the finest wine experiences!'
+                                : 'Пронајди врвни винарии со само еден клик - вашата влезна точка до најдобрите вински искуства!' }}
         </div>
         <img class="image" src="./WineWeb/HomePage_logo/Bright_Colorful_Playful_Funny_Donuts_Food_Circle_Logo__2_-removebg-preview.png" alt="HomePageImage">
       </div>
-      <router-link to="/map"><button class="home-page-button">SEARCH NOW</button></router-link>
+      <router-link to="/map">
+        <button class="home-page-button">
+          {{ language === 'EN' ? 'SEARCH NOW' : 'ПРЕБАРАЈ ОДМА' }}
+        </button>
+      </router-link>
     </div>
   </div>
 </template>
