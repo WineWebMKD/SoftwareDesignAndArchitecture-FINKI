@@ -22,7 +22,6 @@ export default {
   setup() {
     const store = useStore();
     const language = computed(() => store.state.language);
-
     return {
       language,
     };
@@ -31,20 +30,25 @@ export default {
 </script>
 
 <style scoped>
-/* Your CSS styles can be placed here */
 .inner-block-about {
   background-color: #B18B6A;
   padding: 5%;
-
   margin: 0 auto;
   text-align: center;
   text-overflow: clip;
   height: 70%;
   width: 80%;
 }
+.outer-block-about {
+  background-color: #CFAA87;
+  width: 50%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 20px;
+}
 .outer-block-about > h2 {
   display: flex;
-  justify-content: center; /* Center horizontally */
+  justify-content: center;
   align-items: center;
   margin-block-start: 0.83em;
   margin-block-end: 0.83em

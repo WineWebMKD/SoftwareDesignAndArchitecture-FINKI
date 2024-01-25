@@ -1,11 +1,12 @@
-import smtplib, ssl
+import smtplib
 from email.mime.text import MIMEText
+
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fuzzywuzzy import fuzz
 from pydantic import BaseModel
-from transliterate import translit, get_available_language_codes
+from transliterate import translit
 
 origins = [
     "http://localhost:5173",  # Replace with your frontend URL
@@ -24,6 +25,7 @@ app.add_middleware(
 )
 
 
+# main
 class FormData(BaseModel):
     name: str
     email: str
@@ -31,6 +33,7 @@ class FormData(BaseModel):
     message: str
 
 
+# main
 def send_email(form_data: FormData):
     sender_email = "temporarywinery@gmail.com"
     sender_password = "mswh howm pvqd xnxv"
@@ -51,6 +54,7 @@ def send_email(form_data: FormData):
     print("Message sent!")
 
 
+# main
 @app.post("/submit-form")
 async def submit_form(form_data: FormData):
     try:
@@ -62,11 +66,7 @@ async def submit_form(form_data: FormData):
         raise HTTPException(status_code=500, detail=f"Error sending email: {str(e)}")
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
+# MicroService for mapdetails
 @app.get("/get_all_data")
 async def get_all_coordinates():
     df = pd.read_csv("filtered.csv")
@@ -77,6 +77,23 @@ async def get_all_coordinates():
             "data": data}
 
 
+# MicroService for map
+@app.get("/coordinates_info")
+async def get_all_coordinates():
+    df = pd.read_csv("filtered.csv")
+    # Rename the first column to 'ID'
+    df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
+    # Selecting specific columns
+    selected_columns = ['ID', 'Latitude', 'Longitude', 'Name']
+    df_copy = df[selected_columns].copy()
+    # Convert to JSON
+    data = df_copy.to_json(orient="records")
+    return {
+        "message": "Connected to backend",
+        "data": data
+    }
+
+
 @app.get("/get_data/{marker_id}")
 async def get_data(marker_id: int):
     df = pd.read_csv("filtered.csv")
@@ -84,48 +101,16 @@ async def get_data(marker_id: int):
     df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
     data = df_copy[df_copy['ID'] == marker_id].to_json(orient="records")
     return {"message": "Connected to backend",
-            "data": data}
+            "data": data}   
 
 
-@app.get("/get_occupation/{occupation}")
-async def get_occupation(occupation: str):
-    print(occupation)
-    df = pd.read_csv("filtered.csv")
-    df_copy = df.copy()
-    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
-    if occupation == 'vinarija':
-        data = df_copy[df_copy["Activities"].str.contains('винотеки (винарници)', regex=False)].to_json(orient="records")
-    else:
-        data = df_copy[df_copy["Activities"].str.contains("винарски визби", regex=False)].to_json(orient="records")
-    return {"message": "Connected to backend",
-            "data": data, "occupation": occupation}
-
-
+# main app
 @app.get("/get_all_cities")
 async def get_all_cities():
     df = pd.read_csv("filtered.csv")
     unique_cities = df['City'].unique()
     df_copy = pd.DataFrame(unique_cities, columns=['City'])
     data = df_copy.to_json(orient="records")
-    return {"message": "Connected to backend",
-            "data": data}
-
-
-@app.get("/get_input_data/{encoded_input}")
-async def get_input_data(encoded_input: str):
-    # Decode the city
-    decoded_input = translit(encoded_input, 'mk')
-    # Read your CSV data
-    df = pd.read_csv("filtered.csv")
-    df_copy = df.copy()
-    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
-    filtered_data = df_copy[
-        (df_copy['Name'].str.contains(decoded_input, case=False)) |
-        (df_copy['Address'].str.contains(decoded_input, case=False)) |
-        (df_copy.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Name']), axis=1) > 70) |
-        (df_copy.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Address']), axis=1) > 70)
-        ]
-    data = filtered_data.to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data}
 
@@ -163,8 +148,3 @@ async def get_filtered_data(encoded_city: str, occupation: str, encoded_input: s
 
     return {"message": "Connected to backend",
             "data": data}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}

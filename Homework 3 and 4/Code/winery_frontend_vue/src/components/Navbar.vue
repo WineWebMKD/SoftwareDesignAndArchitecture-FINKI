@@ -20,5 +20,32 @@ const language = computed(() => store.state.language);
 </script>
 
 <style scoped>
+ul {
+  list-style-type: none;
+  margin: 5%;
+  display: flex;
+}
+.navigation-bar li.active {
+  font-weight: 1000;
+  color: inherit;
+  pointer-events: none;
+}
+a {
+  width: 50%;
+  text-decoration: none;
+  color: white;
+  font-size: 25px;
+}
+a:hover {
+  color: #9a3f3f;
+}
+a:active{
+  font-weight: bold;
+}
+li {
+  text-align: center;
+  width: 120px;
+  margin-right: 45px;
+}
 
 </style>

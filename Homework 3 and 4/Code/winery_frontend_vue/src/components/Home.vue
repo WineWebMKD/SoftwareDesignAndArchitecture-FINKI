@@ -9,7 +9,7 @@
         <img class="image" src="./WineWeb/HomePage_logo/Bright_Colorful_Playful_Funny_Donuts_Food_Circle_Logo__2_-removebg-preview.png" alt="HomePageImage">
       </div>
       <router-link to="/map">
-        <button class="home-page-button">
+        <button class="home-button">
           {{ language === 'EN' ? 'SEARCH NOW' : 'ПРЕБАРАЈ ОДМА' }}
         </button>
       </router-link>
@@ -25,7 +25,6 @@ export default {
   setup() {
     const store = useStore();
     const language = computed(() => store.state.language);
-
     return {
       language,
     };
@@ -34,28 +33,30 @@ export default {
 </script>
 
 <style scoped>
+.outer-block-home{
+  background-color: #CFAA87;
+  width: 50%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.inner-block-home{
+  display: flex;
+  justify-content: center;
 
-/* Your CSS styles can be placed here */
+}
 .image-container {
   position: relative;
-  text-align: center; /* Center the text horizontally */
+  text-align: center;
 }
-
 .image {
   display: block;
-  width: 100%; /* Adjust this as needed */
-  height: auto; /* Adjust this as needed */
+  width: 100%;
+  height: auto;
 }
-
-.image-text {
-  position: absolute;
-  top: 50%; /* Adjust as needed */
-  left: 50%; /* Adjust as needed */
-  transform: translate(-50%, -50%);
-  padding-top: 10vh; /* Optional: Add padding to the text */
-}
-
-
 .image-text{
   position: absolute;
   top: 50%;
@@ -64,9 +65,9 @@ export default {
   width: 350px;
   font-size: 26px;
   color: white;
+  padding-top: 10vh;
 }
-
-.home-page-button{
+.home-button{
   position: absolute;
   top: 73%;
   left: 50%;
@@ -74,7 +75,7 @@ export default {
   -ms-transform: translate(-50%, -50%);
   background-color: #7D1310;
   color: white;
-  font-size: 20px;
+  font-size: 1.2em;
   padding: 12px 24px;
   border: none;
   cursor: pointer;

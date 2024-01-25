@@ -67,7 +67,6 @@ export default {
       }
     },
     resetForm() {
-      // Reset form fields
       this.formData = {
         name: '',
         email: '',
@@ -79,7 +78,23 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.outer-block-contact{
+  background-color: #CFAA87;
+  width: 50%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.inner-block-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 20%;
+}
 .form-title {
   display: flex;
   justify-content: center; /* Center horizontally */
@@ -88,5 +103,51 @@ export default {
   font-size: 1em;
   text-align: center;
   font-weight: bold;
+}
+.form-field {
+  background-color: #B18B6A;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  margin: 1%;
+  padding: 3%;
+  width: 90%;
+  height: 10%;
+  display: flex;
+  align-items: center;
+}
+
+.form-field label {
+  margin-right: 10px;
+}
+
+.form-message {
+  height: 150px;
+}
+
+.submit-button {
+  background-color: #7D1310;
+  color: white;
+  border-radius: 100px;
+  width: 150px;
+  height: 30px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #4E0D0A; /* Change the color on hover if desired */
+}
+input {
+  background: #B18B6A;
+  border: none;
+  height: 25px;
+  width: 300px;
+}
+textarea{
+  background: #B18B6A;
+  border: none;
+  width: 500px;
+  height: 130px;
 }
 </style>

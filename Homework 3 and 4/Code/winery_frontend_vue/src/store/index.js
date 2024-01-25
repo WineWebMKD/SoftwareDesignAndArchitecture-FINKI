@@ -6,7 +6,6 @@ export default createStore({
     },
     mutations: {
         setLanguage(state, language) {
-            // Update the language based on the provided parameter
             state.language = language;
         },
     },

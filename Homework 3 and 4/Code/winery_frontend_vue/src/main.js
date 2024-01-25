@@ -63,7 +63,3 @@ createApp(App)
     .use(router)
     .use(store) // Use your Vuex store
     .mount('#app')
-// new Vue({
-//     router, // Use the router
-//     render: h => h(App)
-// }).$mount('#app');
