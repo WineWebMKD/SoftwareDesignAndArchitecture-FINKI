@@ -65,13 +65,13 @@ export default {
       };
       // Convert both text and translation keys to lowercase and remove extra spaces
       const words = text.split(' ');
-      console.log('spliting: ' + words)
+      // console.log('spliting: ' + words)
       // Translate each word using the mapping
       const translatedWords = words.map(word => translations[word] || word);
 
       // Join the translated words back into a string
       const translatedText = translatedWords.join(' ');
-      console.log(translatedText);
+      // console.log(translatedText);
 
       return translatedText;
     },
@@ -90,30 +90,21 @@ export default {
         const data = response.data['data'];
         console.log("Parse data..")
         const parsedData = JSON.parse(data);
-
-        //map out data columns
-        let Wineries = await this.map_data(parsedData)
-
-        const resultSelect = document.getElementById("filter_results");
-        while (resultSelect.firstChild) {
-          resultSelect.removeChild(resultSelect.firstChild);
-        }
-        await this.resetDetails()
-        for (const obj of Wineries) {
-          await this.detailed_results(obj.Name, obj.ID)
-        }
-
+        await this.createFilterDivs(parsedData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
-    async resetDetails(){
-      this.address = null
-      this.working_hours = null
-      this.facebook = null
-      this.instagram = null
-      this.webpage = null
-      this.contact = null
+    async createFilterDivs(Data){
+      //map out data columns
+      let Wineries = await this.map_data(Data)
+      const resultSelect = document.getElementById("filter_results");
+      while (resultSelect.firstChild) {
+        resultSelect.removeChild(resultSelect.firstChild);
+      }
+      for (const obj of Wineries) {
+        await this.detailed_results(obj.Name, obj.ID)
+      }
     },
     async detailed_results(Name, ID){
       try {
@@ -126,8 +117,8 @@ export default {
         }
         if(latin){
           let temp = cyrillicToTranslit().transform(Name, " ");
-          console.log("Name:" +Name)
-          console.log("Change:"+temp)
+          // console.log("Name:" +Name)
+          // console.log("Change:"+temp)
           div_result.textContent = await this.translate(temp)
         }else{
           div_result.textContent = cyrillicToTranslit().reverse(Name, " ");
@@ -159,7 +150,7 @@ export default {
       const resultDivs = document.querySelectorAll('.result_divs');
       // Find the result element with a data-id attribute matching the markerID
       const result = Array.from(resultDivs).find(div => div.dataset.id === markerID.toString());
-      console.log(result)
+      // console.log(result)
       // If a result is found, emit an event or perform any action you need
       if (result) {
         console.log("did it")

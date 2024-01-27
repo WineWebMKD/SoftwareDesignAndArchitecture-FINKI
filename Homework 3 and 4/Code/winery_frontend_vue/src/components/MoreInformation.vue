@@ -96,13 +96,13 @@ export default {
       };
       // Convert both text and translation keys to lowercase and remove extra spaces
       const words = text.split(' ');
-      console.log('spliting: ' + words)
+      // console.log('spliting: ' + words)
       // Translate each word using the mapping
       const translatedWords = words.map(word => translations[word] || word);
 
       // Join the translated words back into a string
       const translatedText = translatedWords.join(' ');
-      console.log(translatedText);
+      // console.log(translatedText);
 
       return translatedText;
     },
@@ -110,14 +110,14 @@ export default {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/get_data/${markerId}`);// Replace with your backend endpoint
         const data = response.data['data'];
-        console.log("Parse data..")
+        // console.log("Parse data..")
         const parsedData = JSON.parse(data);
-        console.log("Data from backend:", parsedData);
+        // console.log("Data from backend:", parsedData);
         // Handle the received data, update UI, etc.
         let target = await this.map_data(parsedData)
 
 
-        console.log(target)
+        // console.log(target)
         let latin = false;
         if(this.language === 'EN'){
           latin = true;

@@ -75,9 +75,7 @@ export default {
     };
   },
   async mounted() {
-    // await this.get_all_data();
     await this.createCities();
-
   },
   watch: {
     language: async function (newLanguage) {
@@ -93,7 +91,12 @@ export default {
     // ne znam
     translate(text) {
       const translations = {
-        'Okhrid': 'Ohrid',
+        'Скопjе':'Скопје',
+        'Оhрид': 'Охрид',
+        'Капиjа': 'Капија',
+        'Кавадарcи': 'Кавадарци',
+        'Гевгелиjа': 'Гевгелија',
+        'Доjран': 'Дојран',
         'Vinari\u0458a': 'Winery',
         'Vineri\u0458a-Kralitsa': 'Winery-Queen',
         'vineri\u0458a': 'Winery',
@@ -144,13 +147,13 @@ export default {
     //map.vue
     async createCities(){
       try {
-        console.log("Send request to backend for cities")
+        // console.log("Send request to backend for cities")
         const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
         const data = response.data['data'];
-        console.log("Parse data..")
+        // console.log("Parse data..")
         const parsedData = JSON.parse(data);
-        console.log("Parsed data is:")
-        console.log(parsedData[0])
+        // console.log("Parsed data is:")
+        // console.log(parsedData[0])
         let latin = false;
         if(this.language === 'EN'){
           latin = true;
@@ -160,6 +163,7 @@ export default {
             this.cities.push(transliterate(obj.City))
           }else{
             this.cities.push(obj.City)
+            console.log(obj.City)
           }
         });
       } catch (error) {
@@ -167,22 +171,6 @@ export default {
       }
     },
     //check
-    async map_data(parsedData){
-      return parsedData.map(obj => {
-        return {
-          ID: obj.ID,
-          Name: obj.Name,
-          Latitude: obj.Latitude,
-          Longitude: obj.Longitude,
-          Address: obj.Address,
-          Working_Hours: obj['Working Hours'],
-          Facebook: obj.Facebook,
-          Instagram: obj.Instagram,
-          WebPage: obj.WebPage,
-          Numbers: obj.Numbers
-        };
-      })
-    },
     getMoreInfo(markerID, optionClicked){
       this.$refs.InformationComponent.getDataFromBackend(markerID);
       if(optionClicked === 2) this.$refs.MapComponent.findMarker(markerID);
@@ -210,22 +198,15 @@ export default {
         const response = await axios.get(
             `http://127.0.0.1:8000/get_filtered_data/${encoded_city}/${this.selectedOcc}/${encoded_input}`);
         const data = response.data['data'];
-        console.log("Parse data..")
-        console.log(data)
+        // console.log("Parse data..")
+        // console.log(data)
         const parsedData = JSON.parse(data);
         // console.log("Data from backend:", parsedData);
 
-        const resultSelect = document.getElementById("filter_results");
-        while (resultSelect.firstChild) {
-          resultSelect.removeChild(resultSelect.firstChild);
-        }
         await this.$refs.InformationComponent.resetDetails()
         await this.$refs.MapComponent.removeAllMarkers()
-        const mappedData = await this.map_data(parsedData)
-        for (const obj of mappedData) {
-          await this.$refs.MapComponent.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
-          await this.$refs.ResultsComponent.detailed_results(obj.Name, obj.ID)
-        }
+        await this.$refs.MapComponent.createMarkers(parsedData)
+        await this.$refs.ResultsComponent.createFilterDivs(parsedData)
       } catch (error){
         console.error("Error fetching data:", error);
       }
@@ -234,16 +215,18 @@ export default {
       try {
         let old_selection = this.selectedCity
         this.cities = []
+        console.log("Old selection:", old_selection)
         await this.createCities();
         if (old_selection !== 'all'){
           if(newLanguage === 'EN'){
-            this.selectedCity = cyrillicToTranslit().transform(old_selection, " ");
+            this.selectedCity = transliterate(old_selection);
           }else{
-            this.selectedCity = cyrillicToTranslit().reverse(old_selection);
+            this.selectedCity = this.translate(cyrillicToTranslit().reverse(old_selection));
           }
         }else{
           this.selectedCity = old_selection
         }
+        console.log(this.selectedCity)
         await this.checkFilters();
         await this.$refs.InformationComponent.resetDetails();
       } catch (error){
@@ -322,8 +305,9 @@ body{
 }
 div.outer-block-map > div.left-block > div > input{
   background: #B18B6A;
-  margin-left: 4%;
+  margin-left: 3.8%;
   border-radius: 5px;
+  border: transparent;
   height: 30px;
   width: 78%;
   color: white;

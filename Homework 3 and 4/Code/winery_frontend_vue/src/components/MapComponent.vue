@@ -85,25 +85,23 @@ export default {
       };
       // Convert both text and translation keys to lowercase and remove extra spaces
       const words = text.split(' ');
-      console.log('spliting: ' + words)
+      // console.log('spliting: ' + words)
       // Translate each word using the mapping
       const translatedWords = words.map(word => translations[word] || word);
 
       // Join the translated words back into a string
       const translatedText = translatedWords.join(' ');
-      console.log(translatedText);
+      // console.log(translatedText);
 
       return translatedText;
     },
     async get_all_data() {
       try {
-        this.map.setView(this.initialView.center, this.initialView.zoom);
-        console.log("Send request to backend")
+        // console.log("Send request to backend")
         const response = await axios.get('http://127.0.0.1:8000/coordinates_info');
         const data = response.data['data'];
-        console.log("Parse data..")
+        // console.log("Parse data..")
         const parsedData = JSON.parse(data);
-        this.selectedMarker = null;
 
         await this.createMarkers(parsedData)
       } catch (error) {
@@ -111,12 +109,14 @@ export default {
       }
     },
     async createMarkers(Data){
+      this.map.setView(this.initialView.center, this.initialView.zoom);
+      this.selectedMarker = null;
       let Wineries = await this.map_data(Data)
       await this.removeAllMarkers()
       for (const obj of Wineries) {
         //create marker and user interaction with it
         await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
-        console.log(`Coordinate ${obj.ID}: (${obj.Latitude}, ${obj.Longitude})`);
+        // console.log(`Coordinate ${obj.ID}: (${obj.Latitude}, ${obj.Longitude})`);
       }
     },
     async map_data(parsedData) {
@@ -138,10 +138,10 @@ export default {
     },
     async addNewMarker(latitude, longitude, id, name) {
       let latin = false;
-      console.log(latin)
+      // console.log(latin)
       if (this.language === 'EN') {
         latin = true;
-        console.log("YES")
+        // console.log("YES")
       }
       if (latin) {
         name = transliterate(name);
