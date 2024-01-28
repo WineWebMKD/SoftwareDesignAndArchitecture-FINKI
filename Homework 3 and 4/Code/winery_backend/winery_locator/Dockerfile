@@ -7,8 +7,6 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-#COPY ../filtered.csv /app/filtered.csv
-
 # Change the working directory to /app/winery_backend
 WORKDIR /app
 

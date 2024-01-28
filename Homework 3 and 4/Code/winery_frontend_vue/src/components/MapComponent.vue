@@ -61,7 +61,11 @@ export default {
     async getAllCoordinates() {
       try {
         // Request for getting coordinates
+<<<<<<< HEAD
         const response = await axios.get('http://127.0.0.1:8002/coordinates_info');
+=======
+        const response = await axios.get('http://127.0.0.1:8000/coordinates_info');
+>>>>>>> main
         const data = response.data['data'];
         const parsed_data = JSON.parse(data);
         // Creating markers
