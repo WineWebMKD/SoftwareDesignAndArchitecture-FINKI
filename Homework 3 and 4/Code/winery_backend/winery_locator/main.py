@@ -43,7 +43,6 @@ def get_coordinates(row):
     return row
 
 
-# MicroService for map
 @app.get("/coordinates_info")
 async def get_all_coordinates():
     try:
@@ -59,6 +58,8 @@ async def get_all_coordinates():
         return {"data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
 
 
 class WineryIds(BaseModel):
@@ -81,3 +82,4 @@ async def check_location(ids: WineryIds):
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
