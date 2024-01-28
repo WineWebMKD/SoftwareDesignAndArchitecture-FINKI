@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  winery_frontend:
+    build:
+      context: ./winery_frontend_vue
+    ports:
+      - "8000:8000"
+    depends_on:
+      - winery_fetcher
+      - winery_locator
+
+  winery_fetcher:
+    build:
+      context: ./winery_backend/winery_fetcher
+    ports:
+      - "8001:8001"
+
+  winery_locator:
+    build:
+      context: ./winery_backend/winery_locator
+    ports:
+      - "8002:8002"

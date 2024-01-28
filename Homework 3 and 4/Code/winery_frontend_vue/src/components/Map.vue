@@ -86,7 +86,7 @@ export default {
     async createCities(){
       try {
         // Send request to backend for city options
-        const response = await axios.get('http://127.0.0.1:8000/get_all_cities');
+        const response = await axios.get('http://127.0.0.1:8001/get_all_cities');
         const data = response.data['data'];
         const parsed_data = JSON.parse(data);
 
@@ -128,7 +128,7 @@ export default {
         const encoded_city = transliterate(this.selected_city);
         const encoded_input = transliterate(this.search_input);
         const response = await axios.get(
-            `http://127.0.0.1:8000/get_filtered_data/${encoded_city}/${this.selected_occupation}/${encoded_input}`);
+            `http://127.0.0.1:8001/get_filtered_data/${encoded_city}/${this.selected_occupation}/${encoded_input}`);
         const data = response.data['data'];
         const parsed_data = JSON.parse(data);
 

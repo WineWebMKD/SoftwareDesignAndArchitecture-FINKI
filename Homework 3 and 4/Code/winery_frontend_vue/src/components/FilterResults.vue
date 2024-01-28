@@ -38,7 +38,7 @@ export default {
     async getAllData() {
       try {
         // Get all winery names
-        const response = await axios.get('http://127.0.0.1:8000/get_winery_name');
+        const response = await axios.get('http://127.0.0.1:8001/get_winery_name');
         const data = response.data['data'];
         const parsed_data = JSON.parse(data);
         await this.createResultDivs(parsed_data);

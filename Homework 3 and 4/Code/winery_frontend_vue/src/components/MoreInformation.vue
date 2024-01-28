@@ -70,7 +70,7 @@ export default {
     },
     async getDataFromBackend(winery_id) {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/get_data/${winery_id}`);// Replace with your backend endpoint
+        const response = await axios.get(`http://127.0.0.1:8001/get_data/${winery_id}`);// Replace with your backend endpoint
         const data = response.data['data'];
         const parsed_data = JSON.parse(data);
         // Handle the received data

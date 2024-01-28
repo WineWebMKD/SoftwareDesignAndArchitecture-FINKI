@@ -61,7 +61,11 @@ export default {
     async getAllCoordinates() {
       try {
         // Request for getting coordinates
+<<<<<<< HEAD
+        const response = await axios.get('http://127.0.0.1:8002/coordinates_info');
+=======
         const response = await axios.get('http://127.0.0.1:8000/coordinates_info');
+>>>>>>> main
         const data = response.data['data'];
         const parsed_data = JSON.parse(data);
         // Creating markers
@@ -152,7 +156,7 @@ export default {
     async checkLocation(winery_ids) {
       try {
         const response = await axios.post(
-            'http://127.0.0.1:8000/check_location',
+            'http://127.0.0.1:8002/check_location',
             { "winery_ids": winery_ids }
           );
         const data = response.data['data'];

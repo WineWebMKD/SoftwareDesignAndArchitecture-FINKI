@@ -59,7 +59,7 @@ export default {
     async submitForm() {
       try {
         // Send email
-        await axios.post('http://127.0.0.1:8000/submit-form', this.formData);
+        await axios.post('http://127.0.0.1:8001/submit-form', this.formData);
         this.resetForm();
         // Show success message
         let message = this.language === 'EN' ? 'Message sent successfully!' : 'Пораката е успешно испратена!';
