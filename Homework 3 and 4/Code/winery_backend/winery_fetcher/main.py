@@ -8,20 +8,12 @@ from fuzzywuzzy import fuzz
 from pydantic import BaseModel
 from transliterate import translit
 
-
 origins = [
-<<<<<<< HEAD
     "http://localhost:8000",
-=======
->>>>>>> main
     "http://localhost:5173",  # Replace with your frontend URL
     "http://127.0.0.1:5173",  # Optionally, include localhost
 ]
 
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 app = FastAPI()
 
 app.add_middleware(
@@ -32,10 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-<<<<<<< HEAD
 
-=======
->>>>>>> main
 # main
 class FormData(BaseModel):
     name: str
@@ -43,10 +32,7 @@ class FormData(BaseModel):
     subject: str
     message: str
 
-<<<<<<< HEAD
 
-=======
->>>>>>> main
 # main
 def send_email(form_data: FormData):
     sender_email = "temporarywinery@gmail.com"
@@ -65,57 +51,21 @@ def send_email(form_data: FormData):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
         smtp_server.login(sender_email, sender_password)
         smtp_server.sendmail(sender_email, sender_email, msg.as_string())
-<<<<<<< HEAD
-=======
     print("Message sent!")
->>>>>>> main
 
 
 # main
 @app.post("/submit-form")
 async def submit_form(form_data: FormData):
     try:
-<<<<<<< HEAD
-=======
         print("Trying to send email")
         print(form_data)
->>>>>>> main
         send_email(form_data)
         return {"message": "Email sent successfully!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error sending email: {str(e)}")
 
-<<<<<<< HEAD
 
-# MicroService for mapdetails
-@app.get("/get_winery_name")
-async def get_winery_name():
-    try:
-        df = pd.read_csv("filtered.csv")
-        # Rename the first column to 'ID'
-        df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
-        # Selecting specific columns
-        selected_columns = ['ID', 'Name', 'Address']
-        df_copy = df[selected_columns].copy()
-        data = df_copy.to_json(orient="records")
-        return {"data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
-@app.get("/get_data/{winery_id}")
-async def get_data(winery_id: int):
-    try:
-        df = pd.read_csv("filtered.csv")
-        df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
-        selected_columns = ['ID', 'Address', 'Working Hours', 'Numbers', 'Facebook', 'Instagram', 'WebPage']
-        # Select the wanted information for sent id
-        data = df[df['ID'] == winery_id][selected_columns].to_json(orient="records")
-        return {"data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-=======
 # MicroService for mapdetails
 @app.get("/get_all_data")
 async def get_all_coordinates():
@@ -126,6 +76,7 @@ async def get_all_coordinates():
     return {"message": "Connected to backend",
             "data": data}
 
+
 @app.get("/get_data/{marker_id}")
 async def get_data(marker_id: int):
     df = pd.read_csv("filtered.csv")
@@ -134,62 +85,18 @@ async def get_data(marker_id: int):
     data = df_copy[df_copy['ID'] == marker_id].to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data}
->>>>>>> main
+
 
 # main app
 @app.get("/get_all_cities")
 async def get_all_cities():
-<<<<<<< HEAD
-    try:
-        df = pd.read_csv("filtered.csv")
-        unique_cities = df['City'].unique()
-        df_copy = pd.DataFrame(unique_cities, columns=['City'])
-        data = df_copy.to_json(orient="records")
-        return {"data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
-@app.get("/get_filtered_data/{encoded_city}/{occupation}/{encoded_input}")
-async def get_filtered_data(encoded_city: str, occupation: str, encoded_input: str):
-    try:
-        # Read your CSV data
-        df = pd.read_csv("filtered.csv")
-        df_copy = df.copy()
-        df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
-        filter_data = df_copy.copy()
-        # Filter data based on city, occupation and input
-        if occupation == 'vizba':
-            filter_data = df_copy[df_copy["Activities"].str.contains('винотеки (винарници)', regex=False)]
-        elif occupation == 'vinarija':
-            filter_data = df_copy[df_copy["Activities"].str.contains("винарски визби", regex=False)]
-
-        if encoded_city != "all":
-            # Decode the city
-            selected_city = translit(encoded_city, 'mk')
-            filter_data = filter_data[filter_data['City'] == selected_city]
-
-        if encoded_input != "No input":
-            decoded_input = translit(encoded_input, 'mk')
-            input_filter = filter_data[
-                (filter_data['Name'].str.contains(decoded_input, case=False)) |
-                (filter_data['Address'].str.contains(decoded_input, case=False)) |
-                (filter_data.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Name']), axis=1) > 70) |
-                (filter_data.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Address']), axis=1) > 70)
-                ]
-            data = input_filter.to_json(orient="records")
-        else:
-            data = filter_data.to_json(orient="records")
-        return {"data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-=======
     df = pd.read_csv("filtered.csv")
     unique_cities = df['City'].unique()
     df_copy = pd.DataFrame(unique_cities, columns=['City'])
     data = df_copy.to_json(orient="records")
     return {"message": "Connected to backend",
             "data": data}
+
 
 @app.get("/get_filtered_data/{encoded_city}/{occupation}/{encoded_input}")
 async def get_filtered_data(encoded_city: str, occupation: str, encoded_input: str):
@@ -224,4 +131,3 @@ async def get_filtered_data(encoded_city: str, occupation: str, encoded_input: s
 
     return {"message": "Connected to backend",
             "data": data}
->>>>>>> main
