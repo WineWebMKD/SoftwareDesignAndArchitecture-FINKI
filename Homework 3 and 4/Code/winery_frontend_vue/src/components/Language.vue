@@ -20,12 +20,15 @@ const setLanguage = (language) => {
 </script>
 
 <style scoped>
-button{
+button {
+  color: #FFFFFF;
+  width: 5%;
   background-color: transparent;
   border-radius: 16px;
   border-width: 0 0 4px;
+  border-right: solid;
+  border-color: #282828;
   box-sizing: border-box;
-  color: #FFFFFF;
   cursor: pointer;
   display: inline-block;
   font-size: 1em;
@@ -36,15 +39,12 @@ button{
   touch-action: manipulation;
   vertical-align: middle;
   white-space: nowrap;
-  width: 5%;
-  border-right: solid;
-  border-color: #282828;
 }
-span{
-  margin-right: 2%;
+span {
   color: white;
+  margin-right: 2%;
 }
-button.inactive{
+button.inactive {
   color: lightgray;
   pointer-events: none;
 }

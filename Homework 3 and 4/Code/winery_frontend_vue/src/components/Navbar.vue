@@ -26,14 +26,14 @@ ul {
   display: flex;
 }
 .navigation-bar li.active {
-  font-weight: 1000;
   color: inherit;
+  font-weight: 1000;
   pointer-events: none;
 }
 a {
+  color: white;
   width: 50%;
   text-decoration: none;
-  color: white;
   font-size: 25px;
 }
 a:hover {
@@ -43,9 +43,8 @@ a:active{
   font-weight: bold;
 }
 li {
-  text-align: center;
   width: 120px;
+  text-align: center;
   margin-right: 45px;
 }
-
 </style>

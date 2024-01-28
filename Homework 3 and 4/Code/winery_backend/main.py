@@ -1,4 +1,5 @@
 import smtplib
+import traceback
 from email.mime.text import MIMEText
 
 import pandas as pd
@@ -7,6 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fuzzywuzzy import fuzz
 from pydantic import BaseModel
 from transliterate import translit
+from geopy.geocoders import Nominatim
+from typing import List
+
 
 origins = [
     "http://localhost:5173",  # Replace with your frontend URL
@@ -51,15 +55,12 @@ def send_email(form_data: FormData):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
         smtp_server.login(sender_email, sender_password)
         smtp_server.sendmail(sender_email, sender_email, msg.as_string())
-    print("Message sent!")
 
 
 # main
 @app.post("/submit-form")
 async def submit_form(form_data: FormData):
     try:
-        print("Trying to send email")
-        print(form_data)
         send_email(form_data)
         return {"message": "Email sent successfully!"}
     except Exception as e:
@@ -67,84 +68,137 @@ async def submit_form(form_data: FormData):
 
 
 # MicroService for mapdetails
-@app.get("/get_all_data")
-async def get_all_coordinates():
-    df = pd.read_csv("filtered.csv")
-    df_copy = df.copy()
-    df_copy.rename(columns={df.columns[0]: 'ID'}, inplace=True)
-    data = df_copy.to_json(orient="records")
-    return {"message": "Connected to backend",
-            "data": data}
+@app.get("/get_winery_name")
+async def get_winery_name():
+    try:
+        df = pd.read_csv("filtered.csv")
+        # Rename the first column to 'ID'
+        df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
+        # Selecting specific columns
+        selected_columns = ['ID', 'Name', 'Address']
+        df_copy = df[selected_columns].copy()
+        data = df_copy.to_json(orient="records")
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+# Create a geolocator using OpenStreetMap Nominatim
+geolocator = Nominatim(user_agent="WineWeb")
+
+
+# Function to get coordinates from address
+def get_coordinates(row):
+    try:
+        # Check if latitude and longitude are empty
+        if pd.isna(row['Latitude']) or pd.isna(row['Longitude']):
+            location = geolocator.geocode(row['Address'])
+            print("Getting location")
+            if location:
+                row['Latitude'] = location.latitude
+                row['Longitude'] = location.longitude
+                print(location.latitude, location.longitude)
+    except Exception as e:
+        print(f"Error geocoding address '{row['Address']}': {e}")
+    return row
 
 
 # MicroService for map
 @app.get("/coordinates_info")
 async def get_all_coordinates():
-    df = pd.read_csv("filtered.csv")
-    # Rename the first column to 'ID'
-    df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
-    # Selecting specific columns
-    selected_columns = ['ID', 'Latitude', 'Longitude', 'Name']
-    df_copy = df[selected_columns].copy()
-    # Convert to JSON
-    data = df_copy.to_json(orient="records")
-    return {
-        "message": "Connected to backend",
-        "data": data
-    }
+    try:
+        df = pd.read_csv("filtered.csv")
+        # Rename the first column to 'ID'
+        df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
+        # Selecting specific columns
+        selected_columns = ['ID', 'Latitude', 'Longitude', 'Name', 'Address']
+        df_copy = df[selected_columns].copy()
+        # Apply the function to each row
+        df_copy = df_copy.apply(get_coordinates, axis=1)
+        data = df_copy.to_json(orient="records")
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
-@app.get("/get_data/{marker_id}")
-async def get_data(marker_id: int):
-    df = pd.read_csv("filtered.csv")
-    df_copy = df.copy()
-    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
-    data = df_copy[df_copy['ID'] == marker_id].to_json(orient="records")
-    return {"message": "Connected to backend",
-            "data": data}   
+class WineryIds(BaseModel):
+    winery_ids: List[int]
+
+
+@app.post("/check_location")
+async def check_location(ids: WineryIds):
+    try:
+
+        df = pd.read_csv("filtered.csv")
+        df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
+        # Filter DataFrame based on the provided winery IDs
+        selected_columns = ['ID', 'Latitude', 'Longitude', 'Name', 'Address']
+        filtered_data = df[df['ID'].isin(ids.winery_ids)][selected_columns].copy()
+        # Apply the function to get coordinates for each row
+        filtered_data = filtered_data.apply(get_coordinates, axis=1)
+        data = filtered_data.to_json(orient="records")
+        return {"data": data}
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/get_data/{winery_id}")
+async def get_data(winery_id: int):
+    try:
+        df = pd.read_csv("filtered.csv")
+        df.rename(columns={df.columns[0]: 'ID'}, inplace=True)
+        selected_columns = ['ID', 'Address', 'Working Hours', 'Numbers', 'Facebook', 'Instagram', 'WebPage']
+        # Select the wanted information for sent id
+        data = df[df['ID'] == winery_id][selected_columns].to_json(orient="records")
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 # main app
 @app.get("/get_all_cities")
 async def get_all_cities():
-    df = pd.read_csv("filtered.csv")
-    unique_cities = df['City'].unique()
-    df_copy = pd.DataFrame(unique_cities, columns=['City'])
-    data = df_copy.to_json(orient="records")
-    return {"message": "Connected to backend",
-            "data": data}
+    try:
+        df = pd.read_csv("filtered.csv")
+        unique_cities = df['City'].unique()
+        df_copy = pd.DataFrame(unique_cities, columns=['City'])
+        data = df_copy.to_json(orient="records")
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 @app.get("/get_filtered_data/{encoded_city}/{occupation}/{encoded_input}")
 async def get_filtered_data(encoded_city: str, occupation: str, encoded_input: str):
-    # Decode the city
-    selected_city = translit(encoded_city, 'mk')
-    # Read your CSV data
-    df = pd.read_csv("filtered.csv")
-    df_copy = df.copy()
-    df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
-    # Filter data based on city, occupation and input
-    if occupation == 'vizba':
-        filtered_data = df_copy[(df_copy['City'] == selected_city)
-                                & (df_copy["Activities"].str.contains('винотеки (винарници)', regex=False))]
-    elif occupation == 'vinarija':
-        filtered_data = df_copy[(df_copy['City'] == selected_city)
-                                & (df_copy["Activities"].str.contains("винарски визби", regex=False))]
-    else:
-        # Handle other occupations or no occupation selected
-        filtered_data = df_copy[df_copy['City'] == selected_city]
+    try:
+        # Read your CSV data
+        df = pd.read_csv("filtered.csv")
+        df_copy = df.copy()
+        df_copy.rename(columns={df_copy.columns[0]: 'ID'}, inplace=True)
+        filter_data = df_copy.copy()
+        # Filter data based on city, occupation and input
+        if occupation == 'vizba':
+            filter_data = df_copy[df_copy["Activities"].str.contains('винотеки (винарници)', regex=False)]
+        elif occupation == 'vinarija':
+            filter_data = df_copy[df_copy["Activities"].str.contains("винарски визби", regex=False)]
 
-    if encoded_input != "No input":
-        decoded_input = translit(encoded_input, 'mk')
-        input_filter = filtered_data[
-            (df_copy['Name'].str.contains(decoded_input, case=False)) |
-            (df_copy['Address'].str.contains(decoded_input, case=False)) |
-            (df_copy.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Name']), axis=1) > 70) |
-            (df_copy.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Address']), axis=1) > 70)
-            ]
-        data = input_filter.to_json(orient="records")
-    else:
-        data = filtered_data.to_json(orient="records")
+        if encoded_city != "all":
+            # Decode the city
+            selected_city = translit(encoded_city, 'mk')
+            filter_data = filter_data[filter_data['City'] == selected_city]
 
-    return {"message": "Connected to backend",
-            "data": data}
+        if encoded_input != "No input":
+            decoded_input = translit(encoded_input, 'mk')
+            input_filter = filter_data[
+                (filter_data['Name'].str.contains(decoded_input, case=False)) |
+                (filter_data['Address'].str.contains(decoded_input, case=False)) |
+                (filter_data.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Name']), axis=1) > 70) |
+                (filter_data.apply(lambda row: fuzz.partial_ratio(decoded_input, row['Address']), axis=1) > 70)
+                ]
+            data = input_filter.to_json(orient="records")
+        else:
+            data = filter_data.to_json(orient="records")
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

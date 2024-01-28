@@ -1,5 +1,5 @@
 <template>
-    <!-- Map component code goes here -->
+    <!-- Map integration goes here -->
     <div id="map" ref="map"></div>
 </template>
 
@@ -14,113 +14,42 @@ export default {
   setup() {
     const store = useStore();
     const language = computed(() => store.state.language);
-    const selectedMarker = null;
-    const initialView = {
+    const select_marker = null;
+    const initial_view = {
       center: [41.6086, 21.7453],
       zoom: 8
     };
     return {
       language,
-      selectedMarker,
-      initialView,
+      select_marker,
+      initial_view
     };
   },
   data() {
     return {
       map: null,
-      iconProperties: {
+      icon_properties: {
         iconSize: [50, 50],
         iconAnchor: [25, 50],
         popupAnchor: [0, -25],
       },
-      selectedIconUrl: 'src/components/WineWeb/Icons/custom_red_marker.png',
-      defaultIconUrl: 'src/components/WineWeb/Icons/default_marker_icon.png',
+      selected_icon_url: 'src/components/Icons/custom_red_marker.png',
+      default_icon_url: 'src/components/Icons/default_marker_icon.png'
     };
   },
   async mounted() {
-    // Map initialization code goes here
-    this.map = L.map(this.$refs.map).setView(this.initialView.center, this.initialView.zoom);
-    // Add OpenStreetMap tile layer
+    // Map initialization
+    this.map = L.map(this.$refs.map).setView(this.initial_view.center, this.initial_view.zoom);
+    // Adding OpenStreetMap tile layer
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 22,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map);
-    await this.get_all_data();
+    await this.getAllCoordinates();
   },
   methods: {
-    translate(text) {
-      const translations = {
-        'Okhrid': 'Ohrid',
-        'Vinari\u0458a': 'Winery',
-        'Vineri\u0458a-Kralitsa': 'Winery-Queen',
-        'vineri\u0458a': 'Winery',
-        'Vineri': 'Winery',
-        'Gotse': 'Goce',
-        'Vinski': 'Wine',
-        'podrum': 'Cellar',
-        'Tikvesh-Prodavnitsa': 'Tikvesh',
-        'Tsentar': ' ',
-        'Direktsi\u0458a': 'directorate',
-        'direktsi\u0458a': 'directorate',
-        'vinari\u0458a': 'Winery',
-        'Vinari': 'Winery',
-        'vinari': 'Winery',
-        'Vinarska': 'Winery',
-        'vizba': 'Cellar',
-        'Vizba': 'Cellar',
-        'Va\u0458n': 'Wine',
-        'va\u0458n': 'Wine',
-        'Vino': 'Wine',
-        'vino': 'Wine',
-        'Rabotno': 'Open',
-        'vreme:': ':',
-        'Pon': 'Mon',
-        'Pet': 'Fri',
-        'Sab': 'Sat',
-        'Ned': 'Sun',
-        'Sre': 'Wed',
-        'Chet': 'Thr',
-        'od': 'from',
-        'do': 'till'
-      };
-      // Convert both text and translation keys to lowercase and remove extra spaces
-      const words = text.split(' ');
-      // console.log('spliting: ' + words)
-      // Translate each word using the mapping
-      const translatedWords = words.map(word => translations[word] || word);
-
-      // Join the translated words back into a string
-      const translatedText = translatedWords.join(' ');
-      // console.log(translatedText);
-
-      return translatedText;
-    },
-    async get_all_data() {
-      try {
-        // console.log("Send request to backend")
-        const response = await axios.get('http://127.0.0.1:8000/coordinates_info');
-        const data = response.data['data'];
-        // console.log("Parse data..")
-        const parsedData = JSON.parse(data);
-
-        await this.createMarkers(parsedData)
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    },
-    async createMarkers(Data){
-      this.map.setView(this.initialView.center, this.initialView.zoom);
-      this.selectedMarker = null;
-      let Wineries = await this.map_data(Data)
-      await this.removeAllMarkers()
-      for (const obj of Wineries) {
-        //create marker and user interaction with it
-        await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name)
-        // console.log(`Coordinate ${obj.ID}: (${obj.Latitude}, ${obj.Longitude})`);
-      }
-    },
-    async map_data(parsedData) {
-      return parsedData.map(obj => {
+    async mapData(parsed_data) {
+      return parsed_data.map(obj => {
         return {
           ID: obj.ID,
           Name: obj.Name,
@@ -128,6 +57,31 @@ export default {
           Longitude: obj.Longitude
         };
       })
+    },
+    async getAllCoordinates() {
+      try {
+        // Request for getting coordinates
+        const response = await axios.get('http://127.0.0.1:8000/coordinates_info');
+        const data = response.data['data'];
+        const parsed_data = JSON.parse(data);
+        // Creating markers
+        await this.createMarkers(parsed_data);
+      } catch (error) {
+        console.error('Error fetching coordinates:', error);
+      }
+    },
+    async createMarkers(data){
+      this.map.setView(this.initial_view.center, this.initial_view.zoom);
+      // Reset selected marker
+      this.select_marker = null;
+      // Map needed data for markers
+      let markers = await this.mapData(data);
+      // Reset all markers
+      await this.removeAllMarkers()
+      for (const obj of markers) {
+        // Create marker and user interaction with it
+        await this.addNewMarker(obj.Latitude, obj.Longitude, obj.ID, obj.Name);
+      }
     },
     async removeAllMarkers() {
       this.map.eachLayer(layer => {
@@ -138,78 +92,83 @@ export default {
     },
     async addNewMarker(latitude, longitude, id, name) {
       let latin = false;
-      // console.log(latin)
       if (this.language === 'EN') {
         latin = true;
-        // console.log("YES")
       }
       if (latin) {
         name = transliterate(name);
       }
-
       // Create a marker with the specified icon URL
       const marker = L.marker([latitude, longitude], {
         icon: L.icon({
-          iconUrl: this.defaultIconUrl,
-          ...this.iconProperties
+          iconUrl: this.default_icon_url,
+          ...this.icon_properties
         }),
       }).addTo(this.map);
-
       // Store the obj.ID as a custom property on the marker
       marker.objID = id;
-
       marker.on('click', () => {
-        // Change the icon for the previously selected marker (if any) to the default icon
-        this.selectMarker(marker);
-        // marker.bindPopup(`<b>${name}</b>`);
+        // Emit event when clicked
         this.$emit('markerClicked', id, 1);
+        this.selectMarker(marker);
       });
     },
     selectMarker(marker) {
       // Change the icon for the previously selected marker (if any) to the default icon
-      if (this.selectedMarker) {
-        this.selectedMarker.setIcon(L.icon({
-          iconUrl: this.defaultIconUrl,
-          ...this.iconProperties
+      if (this.select_marker) {
+        this.select_marker.setIcon(L.icon({
+          iconUrl: this.default_icon_url,
+          ...this.icon_properties
         }));
       }
-
       // Set the icon for the clicked marker to the selected icon
       marker.setIcon(L.icon({
-        iconUrl: this.selectedIconUrl,
-        ...this.iconProperties
+        iconUrl: this.selected_icon_url,
+        ...this.icon_properties
       }));
-
       // Update the selected marker
-      this.selectedMarker = marker;
+      this.select_marker = marker;
     },
-    findMarker(ID) {
-      let foundMarker = null;
+    findMarker(id) {
+      let found_marker = null;
 
       // Iterate through each marker on the map
       this.map.eachLayer(layer => {
         if (layer instanceof L.Marker) {
-          const markerId = layer.objID;
+          const marker_id = layer.objID;
 
           // Check if the marker objID matches the provided ID
-          if (markerId === ID) {
-            foundMarker = layer;
+          if (marker_id === id) {
+            found_marker = layer;
           }
         }
       });
-      if (foundMarker) {
+      if (found_marker) {
         // Zoom to the selected marker
-        this.selectMarker(foundMarker);
-        this.map.setView(foundMarker.getLatLng(), 13); // You can adjust the zoom level (14 is just an example)
+        this.selectMarker(found_marker);
+        this.map.setView(found_marker.getLatLng(), 13);
       }
     },
-  },
+    async checkLocation(winery_ids) {
+      try {
+        const response = await axios.post(
+            'http://127.0.0.1:8000/check_location',
+            { "winery_ids": winery_ids }
+          );
+        const data = response.data['data'];
+        const parsed_data = JSON.parse(data);
+        // Create filtered markers
+        await this.createMarkers(parsed_data);
+      } catch (error) {
+        console.error("Error checking winery locations:", error);
+      }
+    },
+  }
 };
 </script>
 
 <style scoped>
 @import "leaflet/dist/leaflet.css";
-/* Map component styles go here */
 #map {
   width: 98%;
   height: 98%;

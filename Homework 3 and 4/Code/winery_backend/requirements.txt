@@ -4,3 +4,4 @@ pandas==2.1.4
 transliterate~=1.10.2
 fuzzywuzzy~=0.18.0
 pydantic~=2.5.2
+geopy~=2.4.1

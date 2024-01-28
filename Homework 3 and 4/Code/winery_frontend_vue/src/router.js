@@ -42,7 +42,6 @@ router.beforeEach((to, from, next) => {
     } else if (to.name === 'About') {
         document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/about_page_background.png)';
     } else if (to.name === 'Contact') {
-        // Reset background for other routes
         document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/contact_page_background.png)';
     } else{
         document.body.style.backgroundImage = 'url(src/components/WineWeb/Backgrounds/map_page_background.png)';

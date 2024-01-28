@@ -32,12 +32,13 @@ export default {
 <style scoped>
 .inner-block-about {
   background-color: #B18B6A;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.6);
+  height: 70%;
+  width: 80%;
   padding: 5%;
   margin: 0 auto;
   text-align: center;
   text-overflow: clip;
-  height: 70%;
-  width: 80%;
 }
 .outer-block-about {
   background-color: #CFAA87;
@@ -55,11 +56,11 @@ export default {
 }
 .inner-block-about > div {
   background-color: #B18B6A;
+  height: 100%;
+  width: 100%;
   font-size: 1.4em;
   margin: 0 auto;
   text-align: center;
   overflow: auto;
-  height: 100%;
-  width: 100%;
 }
 </style>

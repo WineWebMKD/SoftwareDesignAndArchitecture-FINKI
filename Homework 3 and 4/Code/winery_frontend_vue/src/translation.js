@@ -1,0 +1,46 @@
+export const translate = (text) => {
+    const translations = {
+        'Скопjе':'Скопје',
+        'Оhрид': 'Охрид',
+        'Капиjа': 'Капија',
+        'Кавадарcи': 'Кавадарци',
+        'Гевгелиjа': 'Гевгелија',
+        'Доjран': 'Дојран',
+        'Vinari\u0458a': 'Winery',
+        'Vineri\u0458a-Kralitsa': 'Winery-Queen',
+        'vineri\u0458a': 'Winery',
+        'Vineri': 'Winery',
+        'Gotse': 'Goce',
+        'Vinski': 'Wine',
+        'podrum': 'Cellar',
+        'Tikvesh-Prodavnitsa': 'Tikvesh',
+        'Tsentar': ' ',
+        'Direktsi\u0458a': 'directorate',
+        'direktsi\u0458a': 'directorate',
+        'vinari\u0458a': 'Winery',
+        'Vinari': 'Winery',
+        'vinari': 'Winery',
+        'Vinarska': 'Winery',
+        'vizba': 'Cellar',
+        'Vizba': 'Cellar',
+        'Va\u0458n': 'Wine',
+        'va\u0458n': 'Wine',
+        'Vino': 'Wine',
+        'vino': 'Wine',
+        'Rabotno': 'Open',
+        'vreme:': ':',
+        'Pon': 'Mon',
+        'Pet': 'Fri',
+        'Sab': 'Sat',
+        'Ned': 'Sun',
+        'Sre': 'Wed',
+        'Chet': 'Thr',
+        'od': 'from',
+        'do': 'till',
+        'Kavadarci': 'Кавадарци',
+        'Кавадарци': 'Kavadarci'
+    };
+    const words = text.split(' ');
+    const translatedWords = words.map(word => translations[word] || word);
+    return translatedWords.join(' ');
+};

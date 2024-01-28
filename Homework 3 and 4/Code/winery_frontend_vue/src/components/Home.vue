@@ -6,7 +6,7 @@
           {{ language === 'EN' ? 'Discover top wineries with just one click - your gateway to the finest wine experiences!'
                                 : 'Пронајди врвни винарии со само еден клик - вашата влезна точка до најдобрите вински искуства!' }}
         </div>
-        <img class="image" src="./WineWeb/HomePage_logo/Bright_Colorful_Playful_Funny_Donuts_Food_Circle_Logo__2_-removebg-preview.png" alt="HomePageImage">
+        <img class="image" src="@/components/WineWeb/HomePageImages/WineWebLetters.png" alt="HomePageImage">
       </div>
       <router-link to="/map">
         <button class="home-button">
@@ -26,14 +26,14 @@ export default {
     const store = useStore();
     const language = computed(() => store.state.language);
     return {
-      language,
+      language
     };
   },
 };
 </script>
 
 <style scoped>
-.outer-block-home{
+.outer-block-home {
   background-color: #CFAA87;
   width: 50%;
   height: 100%;
@@ -43,7 +43,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
 }
-.inner-block-home{
+.inner-block-home {
   display: flex;
   justify-content: center;
 
@@ -53,34 +53,34 @@ export default {
   text-align: center;
 }
 .image {
-  display: block;
   width: 100%;
   height: auto;
+  display: block;
 }
-.image-text{
+.image-text {
+  color: white;
+  width: 350px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 350px;
   font-size: 26px;
-  color: white;
   padding-top: 10vh;
 }
-.home-button{
+.home-button {
+  background-color: #7D1310;
+  color: white;
+  width: 250px;
+  height: 50px;
   position: absolute;
   top: 73%;
   left: 50%;
   transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
-  background-color: #7D1310;
-  color: white;
   font-size: 1.2em;
   padding: 12px 24px;
   border: none;
-  cursor: pointer;
   border-radius: 30px;
-  width: 250px;
-  height: 50px;
+  cursor: pointer;
 }
 </style>
